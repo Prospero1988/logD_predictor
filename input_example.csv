@@ -1,0 +1,12 @@
+MOLECULE_NAME,SMILES,CHILOGD_2.6
+302-472-01,CC(C)(C)N1CCN(Cc2nn3c(cc(nc3c2Br)-n2c(nc3ccccc23)C(F)F)N2CCOCC2)CC1,1.19
+302-473-01,Cc1c(CN2CCC(CC2)C(C)(C)O)nn2c(cc(nc12)-c1cccc2[nH]ccc12)N1CCOCC1,1.48
+306-069-02,CN1c2ccccc2OC[C@H](Nc2nc(Cl)nc(NCCc3ccc(Br)cc3)n2)C1=O,4.12
+307-027-03,CN1CCN(Cc2cccc(c2)C(=O)Nc2cn(C)nc2C(=O)NCc2cccc(F)c2)CC1,0.51
+307-030-01,CN1CCN(CC1)c1ccc(cc1)C(=O)Nc1cn(C)nc1C(=O)Nc1ccc(C)c(c1)C(F)(F)F,2.59
+307-031-01,Cc1ccc(NC(=O)c2nn(C)cc2NC(=O)c2ccc(cc2)N2CCOCC2)cc1C(F)(F)F,4.5
+504-195-01,CC(C)Cn1cncc1-c1c[nH]c2ccc(cc12)C(N)=O,-0.15
+504-226-01,CCn1cncc1-c1c[nH]c2ccc(SC)cc12,0.84
+504-227-01,CCn1cncc1-c1c[nH]c2ccc(cc12)C(N)=S,0.06
+AGH-355-02,CCCn1cncc1-c1c[nH]c2ccc(I)c(F)c12,2.85
+AGH-356-02,Fc1c(I)ccc2[nH]cc(-c3cncn3CC=C)c12,2.63

@@ -1,0 +1,33 @@
+kompilacja 
+
+javac -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor.java
+
+uruchomienie
+
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor <inputFolder> <outputFolder> <solvent>
+
+np:
+
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor .\mols .\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)" no3d
+
+
+
+solventy: 
+
+/* Solvent must be "Chloroform-D1 (CDCl3)", "Methanol-D4 (CD3OD)", or "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)" (with quotation marks)! or left unspecified
+
+
+
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\307_chiLogD_26 D:\Git\temp\external_cmpds\307_chiLogD_26\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)"; 
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\307_chiLogD_76 D:\Git\temp\external_cmpds\307_chiLogD_76\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\307_chiLogD_105 D:\Git\temp\external_cmpds\307_chiLogD_105\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\307_ChromLogD_26 D:\Git\temp\external_cmpds\307_ChromLogD_26\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\307_ChromLogD_74 D:\Git\temp\external_cmpds\307_ChromLogD_74\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\307_ChromLogD_105 D:\Git\temp\external_cmpds\307_ChromLogD_105\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\410_chiLogD_26 D:\Git\temp\external_cmpds\410_chiLogD_26\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)"; 
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\410_chiLogD_76 D:\Git\temp\external_cmpds\410_chiLogD_76\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\410_chiLogD_105 D:\Git\temp\external_cmpds\410_chiLogD_105\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\410_ChromLogD_26 D:\Git\temp\external_cmpds\410_ChromLogD_26\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\410_ChromLogD_74 D:\Git\temp\external_cmpds\410_ChromLogD_74\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+java -Xmx1g -classpath "predictorh.jar;cdk-2.9.jar;." BatchProcessor D:\Git\temp\external_cmpds\410_ChromLogD_105 D:\Git\temp\external_cmpds\410_ChromLogD_105\csv_output "Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)";
+
