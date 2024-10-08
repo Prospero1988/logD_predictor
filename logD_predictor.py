@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Script Name: logD_predictor.py
-Description: 
+Description: yet to be filled
 """
 
 import argparse
@@ -12,13 +12,12 @@ import subprocess
 from art import text2art
 
 # Import custom modules required for the script
-#from demiurge_bin.csv_checker import verify_csv
-#from demiurge_bin.gen_mols import generate_mol_files
-#from demiurge_bin.predictor import run_java_batch_processor
-#from demiurge_bin.bucket import bucket
-#from demiurge_bin.merger import merger
-#from demiurge_bin.labeler import labeler
-#from demiurge_bin.custom_header import custom_header
+from logD_predictor_bin.csv_checker import verify_csv
+from logD_predictor_bin.gen_mols import generate_mol_files
+from logD_predictor_bin.predictor import run_java_batch_processor
+from logD_predictor_bin.bucket import bucket
+from logD_predictor_bin.merger import merger
+from logD_predictor_bin.custom_header import custom_header
 
 # Import sys and define the Tee class
 import sys
@@ -71,12 +70,12 @@ def main():
         subprocess.call('cls' if os.name == 'nt' else 'clear', shell=True)
         
         print('')
-        ascii_art_demiurge = text2art("DEMIURGE")
-        predictor = args.predictor
-        ascii_art_predictor = text2art(predictor)
-        art_width = len(ascii_art_demiurge.split('\n')[0])
-        centered_predictor_lines = [line.center(art_width) for line in ascii_art_predictor.split('\n')]
-        final_art = f"{ascii_art_demiurge}\n" + "\n".join(centered_predictor_lines)
+        ascii_art_predictor = text2art("PREDICTOR")
+        second_line = "logD"
+        ascii_art_2nd_line = text2art(second_line)
+        art_width = len(ascii_art_predictor.split('\n')[0])
+        centered_2nd_line_lines = [line.center(art_width) for line in ascii_art_2nd_line.split('\n')]
+        final_art = f"{ascii_art_predictor}\n" + "\n".join(centered_2nd_line_lines)
         print(final_art)                   
 
         # Step 1: Verify the CSV input file and correct any issues
@@ -85,38 +84,38 @@ def main():
         # Step 2: Generate .mol files from SMILES strings
         mol_directory = generate_mol_files(verified_csv_path)
     
-        # Step 3: Predict NMR spectra and save results as .csv files
-        csv_output_folder = run_java_batch_processor(mol_directory, args.predictor)
+        predictors = ['1H', '13C']
     
-        # Step 4: Perform bucketing to generate pseudo NMR spectra
-        processed_dir = bucket(csv_output_folder, args.predictor)
+        for predictor in predictors:
+            
+            # Step 3: Predict NMR spectra and save results as .csv files
+            csv_output_folder = run_java_batch_processor(mol_directory, predictor)
+        
+            # Step 4: Perform bucketing to generate pseudo NMR spectra
+            processed_dir = bucket(csv_output_folder, predictor)
+        
+            # Step 5: Merge spectra in CSV format into one matrix file
+            output_path, merged_dir = merger(processed_dir, verified_csv_path)
+        
+            # Step 6: Create custom headers for the final dataset
+            custom_header(output_path, verified_csv_path, predictor)
     
-        # Step 5: Merge spectra in CSV format into one matrix file
-        output_path, merged_dir = merger(processed_dir, verified_csv_path)
-    
-        # Step 6: Insert labels into the merged files
-        labeled = labeler(
-            verified_csv_path, output_path, args.label_column, merged_dir
-        )
-    
-        # Step 7: Create custom headers for the final dataset
-        custom_header(labeled, verified_csv_path, args.predictor)
-    
-        # Optional: Clean up temporary dirs and data if the --clean flag is set
-        if args.clean:
-            print(
-                "Script executed with the --clean option. All temporary files "
-                "and folders will be removed:\n"
-            )
-            temp_data = [
-                mol_directory, csv_output_folder, processed_dir, merged_dir
-            ]
-            for folder in temp_data:
-                if os.path.exists(folder):
-                    shutil.rmtree(folder)
-                    print(f"Temporary folder '{folder}' has been deleted.")
-                else:
-                    print(f"Folder '{folder}' does not exist.")
+            # Optional: Clean up temporary dirs and data if the --clean flag is set
+            if args.clean:
+                print(
+                    "Script executed with the --clean option. All temporary files "
+                    "and folders will be removed:\n"
+                )
+                temp_data = [
+                    mol_directory, csv_output_folder, processed_dir, merged_dir,
+                    verified_csv_path
+                ]
+                for folder in temp_data:
+                    if os.path.exists(folder):
+                        shutil.rmtree(folder)
+                        print(f"Temporary folder '{folder}' has been deleted.")
+                    else:
+                        print(f"Folder '{folder}' does not exist.")
     
     finally:
         # Restore original sys.stdout and sys.stderr
