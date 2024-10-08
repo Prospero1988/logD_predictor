@@ -95,7 +95,7 @@ def main():
             processed_dir = bucket(csv_output_folder, predictor)
         
             # Step 5: Merge spectra in CSV format into one matrix file
-            output_path, merged_dir = merger(processed_dir, verified_csv_path)
+            output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor)
         
             # Step 6: Create custom headers for the final dataset
             custom_header(output_path, verified_csv_path, predictor)
@@ -107,16 +107,27 @@ def main():
                     "and folders will be removed:\n"
                 )
                 temp_data = [
-                    mol_directory, csv_output_folder, processed_dir, merged_dir,
-                    verified_csv_path
-                ]
+                    csv_output_folder, processed_dir, merged_dir]
+                
                 for folder in temp_data:
                     if os.path.exists(folder):
                         shutil.rmtree(folder)
                         print(f"Temporary folder '{folder}' has been deleted.")
                     else:
                         print(f"Folder '{folder}' does not exist.")
-    
+        if args.clean:
+            if os.path.exists(verified_csv_path):
+                os.remove(verified_csv_path)
+                print(f"The file '{verified_csv_path}' has been deleted.")
+            else:
+                print(f"The file '{verified_csv_path}' does not exist.")
+            
+            if os.path.exists(mol_directory):
+                shutil.rmtree(mol_directory)
+                print(f"Temporary folder '{mol_directory}' has been deleted.")
+            else:
+                print(f"Folder '{mol_directory}' does not exist.")
+
     finally:
         # Restore original sys.stdout and sys.stderr
         sys.stdout = sys.__stdout__

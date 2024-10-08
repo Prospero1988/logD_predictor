@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 
-def merger(processed_dir, csv_path):
+def merger(processed_dir, csv_path, predictor):
     """
     Merges multiple CSV files in the specified directory into a single
     DataFrame,
@@ -40,7 +40,7 @@ def merger(processed_dir, csv_path):
             df_temp.insert(0, 'filename', filename_without_extension)
             df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
 
-        merged_dir = os.path.join(os.getcwd(), 'merged')
+        merged_dir = os.path.join(os.getcwd(), f'{predictor}_merged')
         if not os.path.exists(merged_dir):
             print(f"\n{merged_dir} directory has been created.")
             os.makedirs(merged_dir, exist_ok=True)
