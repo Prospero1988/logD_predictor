@@ -18,6 +18,7 @@ from logD_predictor_bin.predictor import run_java_batch_processor
 from logD_predictor_bin.bucket import bucket
 from logD_predictor_bin.merger import merger
 from logD_predictor_bin.custom_header import custom_header
+from logD_predictor_bin.model_query import query
 
 # Import sys and define the Tee class
 import sys
@@ -98,8 +99,11 @@ def main():
             output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor)
         
             # Step 6: Create custom headers for the final dataset
-            custom_header(output_path, verified_csv_path, predictor)
+            dataset = custom_header(output_path, verified_csv_path, predictor)
     
+            # Step 7: Query ML models
+            df2 = query(dataset, predictor, verified_csv_path)
+            
             # Optional: Clean up temporary dirs and data if the --clean flag is set
             if args.clean:
                 print(

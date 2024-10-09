@@ -45,3 +45,7 @@ def custom_header(output_path, csv_path, predictor):
 
     except Exception as e:
         print(f"Error occurred: {e}")
+        
+        dataset = merged
+        
+    return dataset
