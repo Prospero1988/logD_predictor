@@ -92,7 +92,7 @@ logD_predictor/
 │   ├── bucket.py                  # Buckets NMR spectra
 │   ├── merger.py                  # Merges bucketed spectra CSVs
 │   ├── custom_header.py           # Adds custom headers to the final dataset
-│   ├── models.py                      # Paths and names of ML models
+│   ├── models.py                  # Paths and names of ML models
 │   └── model_query.py             # Queries machine learning models
 ├── input_example.csv              # Sample input CSV file with SMILES strings
 └── README.md                      # Project documentation (this file)
