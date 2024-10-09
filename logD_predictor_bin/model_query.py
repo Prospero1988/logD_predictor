@@ -24,16 +24,20 @@ def query(dataset, predictor, verified_csv_path):
     # Inicjalizacja DataFrame do przechowywania wyników
     df2 = df[[df.columns[0]]].copy()  # Skopiowanie pierwszej kolumny z etykietą
     
-    for model_path, name in zip(model_paths, model_names):
-        
-        # Wczytanie modelu za pomocą joblib
-        model = joblib.load(model_path)
-        
-        # Przeprowadzenie predykcji bezpośrednio na danych cech
-        predictions = model.predict(features)
-        
-        # Dodanie predykcji jako nowa kolumna o nazwie modelu w DataFrame
-        df2[name] = predictions
+    try:
+        for model_path, name in zip(model_paths, model_names):
+            
+            # Wczytanie modelu za pomocą joblib
+            model = joblib.load(model_path)
+            
+            # Przeprowadzenie predykcji bezpośrednio na danych cech
+            predictions = model.predict(features)
+            
+            # Dodanie predykcji jako nowa kolumna o nazwie modelu w DataFrame
+            df2[name] = predictions
+            
+    except Exception as e:
+        print(f"An error occured: {e}")
     
     # Tworzenie nazwy pliku wynikowego
     new_df_name = os.path.basename(verified_csv_path).split('.')[0] + f"_{predictor}_query_results.csv"
@@ -42,6 +46,13 @@ def query(dataset, predictor, verified_csv_path):
     df2.to_csv(new_df_name, index=False)
     
     # Wyświetlenie dataframe z nową kolumną predykcji
+    print("\n+++++++++++++++++++++++++++++++++++"
+          f"\nWyniki predykcji CHI logD dla modeli ML opartych o \nteoretyczne"
+          f" widma {predictor} z bazy NMRshiftDB2.\n"
+          "+++++++++++++++++++++++++++++++++++\n")
     print(df2)
-    
+    print("\n+++++++++++++++++++++++++++++++++++\n"
+          f'\nPlik .CSV z wynikami predykcji zapisany jako {new_df_name}'
+          f'w folderze {os.getcwd()}'
+          )
     return df2

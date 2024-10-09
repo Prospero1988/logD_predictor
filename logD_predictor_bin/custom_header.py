@@ -29,6 +29,7 @@ def custom_header(output_path, csv_path, predictor):
 
         if len(header_list) == len(merged.columns):
             merged.columns = header_list
+            dataset = merged.copy()
         else:
             print(f"Error: Headers count ({len(header_list)}) does not match "
                   f"columns count ({len(merged.columns)}).")
@@ -45,7 +46,6 @@ def custom_header(output_path, csv_path, predictor):
 
     except Exception as e:
         print(f"Error occurred: {e}")
-        
-        dataset = merged
+        dataset = None
         
     return dataset

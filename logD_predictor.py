@@ -107,7 +107,7 @@ def main():
             # Optional: Clean up temporary dirs and data if the --clean flag is set
             if args.clean:
                 print(
-                    "Script executed with the --clean option. All temporary files "
+                    "\nScript executed with the --clean option. All temporary files "
                     "and folders will be removed:\n"
                 )
                 temp_data = [
