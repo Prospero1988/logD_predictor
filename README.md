@@ -40,7 +40,7 @@ The tool uses the NMRshiftDB2 predictor, which can be accessed [here](https://so
 3. Set up Java environment:
     - Install the Java SDK, ensuring that `javac` and `java` commands are accessible in your system's PATH.
     - The script uses Java batch processors located in the `predictor` directory. Ensure that the `.jar` and `.java` files are correctly configured.
-    - **Important**: The script was tested under **Windows 10** using **PowerShell** and works reliably in this environment. It has **not** been tested on Linux or other operating systems.
+    - **Important**: The script was tested under **Windows 10** using **PowerShell** and works reliably in this environment on **Python 3.11.4**. It has **not** been tested on Linux or other operating systems.
 
 ## Usage
 To run the logD predictor, use the following command:
