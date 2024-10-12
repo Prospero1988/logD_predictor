@@ -18,6 +18,13 @@ def verify_csv(file_path):
                           suffix,
                           or None if there was an error in processing the file.
     """
+    
+    # ANSI color
+    COLORS = ['\033[38;5;46m',
+              '\033[38;5;196m'
+             ]
+    RESET = '\033[0m'
+    
     try:
         print(f"\nStarting verification of the file: {file_path}")
         print("\nDetecting column separator...")
@@ -43,7 +50,7 @@ def verify_csv(file_path):
         print(f"\nLoaded CSV file with shape: {df.shape}")
 
     except Exception as e:
-        print(f"\nError reading file or detecting delimiter: {e}")
+        print(f"\n{COLORS[1]}Error reading file or detecting delimiter: {e}{RESET}")
         return None
 
     try:
@@ -99,8 +106,8 @@ def verify_csv(file_path):
         print(f"\nCSV file saved at: {verified_file_path}")
 
     except Exception as e:
-        print(f"\nError processing CSV file: {e}")
+        print(f"\n{COLORS[1]}Error processing CSV file: {e}{RESET}")
         return None
 
-    print("\nVerification and modifications completed successfully.")
+    print(f"{COLORS[0]}\nVerification and modifications completed successfully.{RESET}")
     return verified_file_path

@@ -17,6 +17,13 @@ def run_java_batch_processor(mol_directory, predictor):
     - csv_output_folder (str): Path to the directory where the predicted CSV
                                files are stored.
     """
+    
+    # ANSI color
+    COLORS = ['\033[38;5;46m',
+              '\033[38;5;196m'
+             ]
+    RESET = '\033[0m'
+    
     csv_output_folder = os.path.join(os.getcwd(),
                                      f"predicted_spectra_{predictor}")
 
@@ -42,10 +49,10 @@ def run_java_batch_processor(mol_directory, predictor):
 
     try:
         subprocess.run(compile_command, shell=True, check=True)
-        print(f"\nSuccessfully compiled {batch_processor_class}.")
+        print(f"\n{COLORS[0]}Successfully compiled {batch_processor_class}.{RESET}")
         print("\nSpectra prediction in progress...\n")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to compile {batch_processor_java}: {e}")
+        print(f"{COLORS[1]}Failed to compile {batch_processor_java}: {e}{RESET}")
         return
 
     run_command = (
@@ -57,6 +64,6 @@ def run_java_batch_processor(mol_directory, predictor):
     try:
         subprocess.run(run_command, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Failed to run {batch_processor_class}: {e}")
+        print(f"{COLORS[1]}Failed to run {batch_processor_class}: {e}{RESET}")
 
     return csv_output_folder

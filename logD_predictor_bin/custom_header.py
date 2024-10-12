@@ -18,6 +18,13 @@ def custom_header(output_path, csv_path, predictor):
     Returns:
     - None
     """
+    
+    # ANSI color
+    COLORS = ['\033[38;5;46m',
+              '\033[38;5;196m'
+             ]
+    RESET = '\033[0m'
+    
     try:
         
         merged = pd.read_csv(output_path)
@@ -31,9 +38,9 @@ def custom_header(output_path, csv_path, predictor):
             merged.columns = header_list
             dataset = merged.copy()
         else:
-            print(f"Error: Headers count ({len(header_list)}) does not match "
-                  f"columns count ({len(merged.columns)}).")
-
+            print(f"{COLORS[1]}Error: Headers count ({len(header_list)}) does not match {RESET}"
+                  f"{COLORS[1]}columns count ({len(merged.columns)}).{RESET}")
+            
         final_dir = os.path.join(os.getcwd(), f'{predictor}_generated_ML_querries')
         os.makedirs(final_dir, exist_ok=True)
 
@@ -41,11 +48,11 @@ def custom_header(output_path, csv_path, predictor):
         file_name = os.path.join(final_dir, f"{file_name}_{predictor}_ML_querry.csv")
 
         merged.to_csv(file_name, index=False)
-        print(f"\nFinal ML querry file saved as: {os.path.basename(file_name)} "
-              f"in {final_dir}\n")
+        print(f"\n{COLORS[0]}Final ML querry file saved as: {os.path.basename(file_name)} {RESET}"
+              f"{COLORS[0]}in {final_dir}\n{RESET}")
 
     except Exception as e:
-        print(f"Error occurred: {e}")
+        print(f"{COLORS[1]}Error occurred: {e}{RESET}")
         dataset = None
         
     return dataset

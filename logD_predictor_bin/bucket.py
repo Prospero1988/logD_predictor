@@ -17,6 +17,13 @@ def bucket(directory, predictor):
     Returns:
     - processed_dir: Directory path where bucketed spectra files are stored.
     """
+    
+    # ANSI color
+    COLORS = ['\033[38;5;46m',
+              '\033[38;5;196m'
+             ]
+    RESET = '\033[0m'
+    
     if predictor == "1H":
         sw_min, sw_max = -1, 14
     elif predictor == "13C":
@@ -78,10 +85,10 @@ def bucket(directory, predictor):
             else:
                 success_count += 1
 
-    print(f"\nSuccessfully created {success_count} files as pseudo spectra.")
+    print(f"\n{COLORS[0]}Successfully created {success_count} files as pseudo spectra.{RESET}")
     if error_files:
-        print(f"Files with errors: {len(error_files)}")
+        print(f"{COLORS[1]}Files with errors: {len(error_files)}{RESET}")
         for fname, errors in error_files.items():
-            print(f"{fname}: {errors}")
+            print(f"{COLORS[1]}{fname}: {errors}{RESET}")
 
     return processed_dir
