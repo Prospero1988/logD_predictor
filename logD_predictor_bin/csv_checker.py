@@ -1,53 +1,62 @@
-# csv_checker.py
-
 import pandas as pd
 import csv
-
 
 def verify_csv(file_path):
     """
     Function to verify and modify a CSV file by handling separators, decimal
     points, and column structure. Additionally, it cleans up the first column
     (e.g., molecule names) by removing problematic characters.
-
-    Parameters:
-    - file_path: The path to the input CSV file to be verified.
-
-    Returns:
-    - verified_file_path: Path to the newly saved CSV file with '_verified'
-                          suffix,
-                          or None if there was an error in processing the file.
+    
+    If any rows are malformed (i.e., column count mismatch), they are reported.
     """
     
     # ANSI color
-    COLORS = ['\033[38;5;46m',
-              '\033[38;5;196m'
+    COLORS = ['\033[38;5;46m',    # Green
+              '\033[38;5;196m',   # Red
+              '\033[38;5;214m'    # Orange
              ]
     RESET = '\033[0m'
-    
+
     try:
-        print(f"\nStarting verification of the file: {file_path}")
+        print(f"\nStarting verification of the file: {COLORS[2]}{file_path}{RESET}")
         print("\nDetecting column separator...")
         with open(file_path, 'r') as file:
             sample = file.read(2048)
 
         delimiter_candidates = [',', ';', '\t']
-        delimiter_counts = {delim: sample.count(delim) for delim in
-                            delimiter_candidates}
+        delimiter_counts = {delim: sample.count(delim) for delim in delimiter_candidates}
         separator = max(delimiter_counts, key=delimiter_counts.get)
-        print(f"\nDetected column separator: '{separator}'")
+        print(f"\nDetected column separator: {COLORS[2]}'{separator}'{RESET}")
 
         print("\nReading header to determine expected number of columns...")
         with open(file_path, 'r') as file:
             reader = csv.reader(file, delimiter=separator)
             headers = next(reader)
             expected_columns = len(headers)
-            print(f"\nExpected number of columns: {expected_columns}")
+            print(f"\nExpected number of columns: {COLORS[2]}{expected_columns}{RESET}")
 
-        print("\nLoading CSV file with detected separator, "
-              "skipping malformed rows...")
+        print("\nLoading CSV file and checking for malformed rows...")
+        
+        # Track malformed rows
+        malformed_rows = []
+
+        # Read the file line by line and check for column mismatch
+        with open(file_path, 'r') as file:
+            reader = csv.reader(file, delimiter=separator)
+            for i, row in enumerate(reader):
+                if len(row) != expected_columns:
+                    malformed_rows.append(i + 1)  # Track row numbers (starting from 1)
+                    print(f"\n{COLORS[1]}Warning: Malformed row {i + 1} (expected {expected_columns} columns, found {len(row)} columns): \n{row}{RESET}")
+        
+        if malformed_rows:
+            print(f"\n{COLORS[1]}Total malformed rows: {len(malformed_rows)}{RESET}\n"
+                  f"{COLORS[1]}Malformed rows will not be used in further processing.{RESET}")
+        else:
+            print(f"\n{COLORS[0]}No malformed rows detected.{RESET}")
+
+        # Load the data, skipping malformed rows
         df = pd.read_csv(file_path, delimiter=separator, on_bad_lines='skip')
-        print(f"\nLoaded CSV file with shape: {df.shape}")
+        print(f"\nLoaded CSV file with shape: {COLORS[2]}{df.shape}{RESET}")
 
     except Exception as e:
         print(f"\n{COLORS[1]}Error reading file or detecting delimiter: {e}{RESET}")
@@ -55,7 +64,7 @@ def verify_csv(file_path):
 
     try:
         if separator == ';':
-            print("\nSeparator is semicolon. Checking for decimal commas...")
+            print(f"\nSeparator is {COLORS[2]}semicolon{RESET}. Checking for decimal commas...")
 
             def is_comma_decimal(cell):
                 try:
@@ -67,18 +76,16 @@ def verify_csv(file_path):
                     return False
 
             if df.applymap(is_comma_decimal).any().any():
-                print("\nDetected commas as decimal points. Replacing "
-                      "with dots...")
+                print("\nDetected commas as decimal points. Replacing with dots...")
                 df = df.applymap(
-                    lambda x: x.replace(',', '.') if isinstance(x, str) and
-                    is_comma_decimal(x) else x
+                    lambda x: x.replace(',', '.') if isinstance(x, str) and is_comma_decimal(x) else x
                 )
-                print("\nReplaced decimal commas with dots.")
+                print(f"\n{COLORS[0]}Replaced decimal commas with dots.{RESET}")
             else:
                 print("\nNo decimal commas detected.")
 
         column_count = len(df.columns)
-        print(f"\nNumber of columns in the CSV file: {column_count}")
+        print(f"\nNumber of columns in the CSV file: {COLORS[2]}{column_count}{RESET}")
         if column_count > 3:
             print("\nRemoving excess columns...")
             df = df.iloc[:, :3]
@@ -95,15 +102,14 @@ def verify_csv(file_path):
         def clean_molecule_name(name):
             if isinstance(name, str):
                 name = name.strip().replace(" ", "").replace("\t", "")
-                for char in ['*', '&', '^', '%', '$', '@', '!', '~', '#', '(',
-                             ')', '[', ']', '{', '}', '?', '/', '\\']:
+                for char in ['*', '&', '^', '%', '$', '@', '!', '~', '#', '(', ')', '[', ']', '{', '}', '?', '/', '\\']:
                     name = name.replace(char, "_")
                 return name
             return name
 
         df.iloc[:, 0] = df.iloc[:, 0].apply(clean_molecule_name)
         df.to_csv(verified_file_path, index=False, sep=',')
-        print(f"\nCSV file saved at: {verified_file_path}")
+        print(f"\nCSV file saved at: {COLORS[2]}{verified_file_path}{RESET}")
 
     except Exception as e:
         print(f"\n{COLORS[1]}Error processing CSV file: {e}{RESET}")

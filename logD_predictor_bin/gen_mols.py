@@ -5,10 +5,11 @@ from rdkit.Chem import AllChem
 import sys
 import time
 
-# ANSI colors for progress bar
-COLORS = [
-    '\033[38;5;46m',  # Green
-]
+# ANSI color
+COLORS = ['\033[38;5;46m',    # Green
+          '\033[38;5;196m',   # Red
+          '\033[38;5;214m'    # Orange
+         ]
 RESET = '\033[0m'
 
 def generate_mol_files(csv_path):
@@ -27,12 +28,12 @@ def generate_mol_files(csv_path):
 
     if not os.path.exists(mols_directory):
         os.makedirs(mols_directory)
-        print(f"\nCreated directory: {mols_directory}")
+        print(f"\nCreated directory: {COLORS[2]}{mols_directory}{RESET}")
 
     try:
         data = pd.read_csv(csv_path)
         if 'MOLECULE_NAME' not in data.columns or 'SMILES' not in data.columns:
-            raise ValueError("CSV must contain 'MOLECULE_NAME' and 'SMILES' columns.")
+            raise ValueError(f"{COLORS[1]}CSV must contain 'MOLECULE_NAME' and 'SMILES' columns.{RESET}")
 
         file_count = 0  # Counter for successfully generated .mol files
         error_file_count = 0  # Counter for .mol files with errors
@@ -47,7 +48,7 @@ def generate_mol_files(csv_path):
                 smiles = row[1]['SMILES']
                 mol = Chem.MolFromSmiles(smiles)
                 if mol is None:
-                    raise ValueError(f"Invalid SMILES string: {smiles}")
+                    raise ValueError(f"{COLORS[1]}Invalid SMILES string: {smiles}{RESET}")
 
                 mol = Chem.AddHs(mol)
                 AllChem.EmbedMolecule(mol, randomSeed=0xf00d)
@@ -65,7 +66,7 @@ def generate_mol_files(csv_path):
                     if mol:
                         f.write(Chem.MolToMolBlock(mol, forceV3000=True))
                     else:
-                        f.write(f"{name} could not be processed due to an error: {e}")
+                        f.write(f"{COLORS[1]}{name} could not be processed due to an error: {e}{RESET}")
                 error_file_count += 1  # Increment counter for error files
 
             # Only update progress every 1%
@@ -74,20 +75,20 @@ def generate_mol_files(csv_path):
                 print_progress(index, total_files)
                 last_update = progress
 
-        # Ensure the progress bar hits 100% after all files are processed
-        print_progress(total_files, total_files)
+        # The line below has been removed to avoid displaying the progress bar twice
+        # print_progress(total_files, total_files)
 
-        print(f"\n{COLORS[0]}Generated {file_count} .mol files in the folder '{mols_directory}'.{RESET}")
+        print(f"\n{COLORS[0]}Generated {file_count} .mol files in the folder {COLORS[2]}'{mols_directory}'.{RESET}")
         print(f"{COLORS[0]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
 
     except FileNotFoundError:
-        print(f"File not found: {csv_path}")
+        print(f"{COLORS[1]}File not found: {csv_path}{RESET}")
     except pd.errors.EmptyDataError:
-        print(f"File is empty: {csv_path}")
+        print(f"{COLORS[1]}File is empty: {csv_path}{RESET}")
     except pd.errors.ParserError:
-        print(f"Error parsing CSV file: {csv_path}")
+        print(f"{COLORS[1]}Error parsing CSV file: {csv_path}{RESET}")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"{COLORS[1]}An unexpected error occurred: {e}{RESET}")
 
     return mols_directory
 
@@ -103,7 +104,7 @@ def print_progress(current, total):
     filled_length = int(bar_length * (current / total))
 
     # Build the progress bar with colored blocks
-    color_cycle = COLORS[current % len(COLORS)]
+    color_cycle = COLORS[0]
     bar = color_cycle + '█' * filled_length + '-' * (bar_length - filled_length) + RESET
 
     percent = int(100 * current / total)
@@ -112,5 +113,4 @@ def print_progress(current, total):
     sys.stdout.flush()
 
     if current == total:
-        print('')
-        print("Processing complete.")
+        print('')  # Add a newline after the last update

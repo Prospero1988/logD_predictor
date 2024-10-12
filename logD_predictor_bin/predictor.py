@@ -19,8 +19,9 @@ def run_java_batch_processor(mol_directory, predictor):
     """
     
     # ANSI color
-    COLORS = ['\033[38;5;46m',
-              '\033[38;5;196m'
+    COLORS = ['\033[38;5;46m',    # Green
+              '\033[38;5;196m',   # Red
+              '\033[38;5;214m'    # Orange
              ]
     RESET = '\033[0m'
     
@@ -29,7 +30,7 @@ def run_java_batch_processor(mol_directory, predictor):
 
     if not os.path.exists(csv_output_folder):
         os.makedirs(csv_output_folder)
-        print(f"\nCreated directory: {csv_output_folder}")
+        print(f"\nCreated directory: {COLORS[2]}{csv_output_folder}{RESET}")
 
     if predictor == "1H":
         predictor_jar = ".\\predictor\\predictorh.jar"
