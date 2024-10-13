@@ -143,15 +143,29 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 - **Colorized Terminal Output**:
   - The terminal output is enhanced with ANSI colors to highlight important messages such as progress updates, errors, and success notifications.
 
+## Argument `--models`
+
+- If you include the `--models` argument when running the script, the tool will display detailed metrics for the machine learning models used during prediction. These metrics include model names, algorithms, datasets used, and post-training performance metrics such as RMSE, MAE, R2, and PEARSON correlation.
+
+## `joblib_models` Directory
+
+- The `joblib_models` directory contains CSV files that define the models used for predicting CHI logD values. Each CSV file corresponds to a different type of NMR spectrum (e.g., `1H_models_info.csv`, `13C_models_info.csv`). These files include information such as:
+  - **Model Name**: The name of the machine learning model.
+  - **Model Path**: The path to the pre-trained model saved in `.joblib` format.
+  - **Performance Metrics**: Metrics like RMSE, MAE, R2, and PEARSON that summarize the model's performance.
+
+Make sure that the correct model definition files are present in this folder before running predictions. The script will load the models dynamically from these CSV files and apply them to the processed NMR spectra.
+
 ## Example Usage
 
 Run the following command for the complete workflow:
 
 ```bash
-python logD_predictor.py --csv_path my_input.csv --predictor 1H --clean
+python logD_predictor.py --csv_path my_input.csv --predictor 1H --models --clean
 ```
 
 - Replace `my_input.csv` with the path to your input file containing SMILES codes.
+- The `--models` flag shows details of the models used during prediction.
 - The `--clean` flag removes all intermediate files after execution. Omit this flag if you wish to keep the intermediate files for debugging.
 
 ## Output File Structure
