@@ -76,16 +76,27 @@ The following directory structure is used:
 ```
 logD_predictor/
 │
-├── logD_predictor.py
-├── install_modules.py
-├── joblib_models/
-│   ├── 1H_models_info.csv
-│   ├── 13C_models_info.csv
-│
-├── data/
-│   └── example_input.csv
-└── logD_results/
-    └── my_input_1H_query_results.csv
+├── logD_predictor.py              # Main script for executing the pipeline
+├── install_modules.py             # Installs required Python packages
+├── predictor/
+│   ├── predictorh.jar             # Java-based predictor for 1H spectra
+│   ├── predictor13C.jar           # Java-based predictor for 13C spectra
+│   ├── cdk-2.9.jar                # CDK library required for spectrum prediction.
+│   ├── BatchProcessor1H.java      # Java batch processor for 1H spectra
+│   └── BatchProcessor13C.java     # Java batch processor for 13C spectra
+├── logD_predictor_bin/            # Directory containing modules
+│   ├── joblib_models/             # Directory containing models and their definitions
+│   │   ├── 1H_models_info.csv     # 1H models definitions
+│   │   ├── 13C_models_info.csv    # 13C models definitions
+│   ├── csv_checker.py             # Verifies and preprocesses CSV files
+│   ├── gen_mols.py                # Generates .mol files from SMILES strings
+│   ├── bucket.py                  # Buckets NMR spectra
+│   ├── merger.py                  # Merges bucketed spectra CSVs
+│   ├── custom_header.py           # Adds custom headers to the final dataset
+│   └── model_query.py             # Queries machine learning models
+├── input_example.csv              # Sample input CSV file with SMILES strings
+├── logD_results/                  # Directiry with query logD results 
+└── README.md                      # Project documentation (this file)
 ```
 
 ### `joblib_models` Directory
