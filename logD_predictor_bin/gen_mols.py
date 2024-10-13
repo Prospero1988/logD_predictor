@@ -79,7 +79,9 @@ def generate_mol_files(csv_path):
         # print_progress(total_files, total_files)
 
         print(f"\n{COLORS[0]}Generated {file_count} .mol files in the folder {COLORS[2]}'{mols_directory}'.{RESET}")
-        print(f"{COLORS[0]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
+        
+        if error_file_count != 0:
+            print(f"{COLORS[1]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
 
     except FileNotFoundError:
         print(f"{COLORS[1]}File not found: {csv_path}{RESET}")

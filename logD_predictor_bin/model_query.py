@@ -93,14 +93,14 @@ def query(dataset, predictor, verified_csv_path, show_models_table = False):
     print("\n" + "+" * line_length)
     print(second_line)
 
-    print(f"\nOption {COLORS[1]}--models{RESET} has been selected. The script will display below a table"
+    print(f"\nOption {COLORS[2]}--models{RESET} has been selected. The script will display below a table"
           f" with details and training metrics for the ML models used.\n")
     
     df_show_models = model_table_df.copy()
     df_show_models = df_show_models.drop('model_path', axis=1)
     df_show_models[['model_name', 'ML_algorithm', 'dataset']] = df_show_models[['model_name', 'ML_algorithm', 'dataset']].astype('string')
     
-    # Wymuszenie wyrównania tylko dla kolumn tekstowych
+    # Force alignment for text columns only
     df_show_models[df_show_models.select_dtypes(include=['object']).columns] = df_show_models.select_dtypes(include=['object']).astype(str)
     print(df_show_models.to_string(justify='left'))
 

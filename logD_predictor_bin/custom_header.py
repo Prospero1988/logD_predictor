@@ -20,8 +20,9 @@ def custom_header(output_path, csv_path, predictor):
     """
     
     # ANSI color
-    COLORS = ['\033[38;5;46m',
-              '\033[38;5;196m'
+    COLORS = ['\033[38;5;46m',    # Green
+              '\033[38;5;196m',   # Red
+              '\033[38;5;214m'    # Orange
              ]
     RESET = '\033[0m'
     
@@ -48,8 +49,8 @@ def custom_header(output_path, csv_path, predictor):
         file_name = os.path.join(final_dir, f"{file_name}_{predictor}_ML_querry.csv")
 
         merged.to_csv(file_name, index=False)
-        print(f"\nFinal ML querry file saved as: {os.path.basename(file_name)}"
-              f"in {final_dir}\n")
+        print(f"\nFinal ML querry file saved as: {COLORS[2]}{os.path.basename(file_name)}{RESET}"
+              f" in {COLORS[2]}{final_dir}{RESET}\n")
 
     except Exception as e:
         print(f"{COLORS[1]}Error occurred: {e}{RESET}")

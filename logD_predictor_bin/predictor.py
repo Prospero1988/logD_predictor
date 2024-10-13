@@ -50,7 +50,7 @@ def run_java_batch_processor(mol_directory, predictor):
 
     try:
         subprocess.run(compile_command, shell=True, check=True)
-        print(f"\n{COLORS[0]}Successfully compiled {batch_processor_class}.{RESET}")
+        print(f"\nSuccessfully compiled {batch_processor_class}.")
         print("\nSpectra prediction in progress...\n")
     except subprocess.CalledProcessError as e:
         print(f"{COLORS[1]}Failed to compile {batch_processor_java}: {e}{RESET}")

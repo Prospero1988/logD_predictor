@@ -80,7 +80,7 @@ def verify_csv(file_path):
                 df = df.applymap(
                     lambda x: x.replace(',', '.') if isinstance(x, str) and is_comma_decimal(x) else x
                 )
-                print(f"\n{COLORS[0]}Replaced decimal commas with dots.{RESET}")
+                print(f"\nReplaced decimal commas with dots.")
             else:
                 print("\nNo decimal commas detected.")
 
