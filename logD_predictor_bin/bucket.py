@@ -85,7 +85,7 @@ def bucket(directory, predictor):
             else:
                 success_count += 1
 
-    print(f"\n{COLORS[0]}Successfully created {success_count} files as pseudo spectra.{RESET}")
+    print(f"\n{COLORS[0]}Successfully created {success_count} files as pseudo spectra by BUCKETING..{RESET}")
     if error_files:
         print(f"{COLORS[1]}Files with errors: {len(error_files)}{RESET}")
         for fname, errors in error_files.items():

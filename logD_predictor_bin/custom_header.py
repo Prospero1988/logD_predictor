@@ -48,11 +48,11 @@ def custom_header(output_path, csv_path, predictor):
         file_name = os.path.join(final_dir, f"{file_name}_{predictor}_ML_querry.csv")
 
         merged.to_csv(file_name, index=False)
-        print(f"\n{COLORS[0]}Final ML querry file saved as: {os.path.basename(file_name)} {RESET}"
-              f"{COLORS[0]}in {final_dir}\n{RESET}")
+        print(f"\nFinal ML querry file saved as: {os.path.basename(file_name)}"
+              f"in {final_dir}\n")
 
     except Exception as e:
         print(f"{COLORS[1]}Error occurred: {e}{RESET}")
         dataset = None
         
-    return dataset
+    return dataset, final_dir

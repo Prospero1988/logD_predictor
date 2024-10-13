@@ -21,10 +21,18 @@ def merger(processed_dir, csv_path, predictor):
     - merged_dir (str): Path to the directory where the merged CSV file
     is saved.
     """
+    
+    # ANSI color
+    COLORS = ['\033[38;5;46m',    # Green
+              '\033[38;5;196m',   # Red
+              '\033[38;5;214m'    # Orange
+             ]
+    RESET = '\033[0m'
+    
     try:
         merging_directory = os.path.join(os.getcwd(), processed_dir)
         if not os.path.exists(merging_directory):
-            print(f"{merging_directory} does not exist.")
+            print(f"{COLORS[1]}{merging_directory} does not exist.{RESET}")
             return
 
         csv_files = [file for file in os.listdir(merging_directory)
@@ -42,17 +50,16 @@ def merger(processed_dir, csv_path, predictor):
 
         merged_dir = os.path.join(os.getcwd(), f'{predictor}_merged')
         if not os.path.exists(merged_dir):
-            print(f"\n{merged_dir} directory has been created.")
+            print(f"\n{COLORS[2]}{merged_dir}{RESET} directory has been created.")
             os.makedirs(merged_dir, exist_ok=True)
 
         file_name = os.path.basename(csv_path).split('.')[0] + '_merged.csv'
         output_path = os.path.join(merged_dir, file_name)
 
         df_merged.to_csv(output_path, index=False, header=True)
-        print(f"\nMerged file saved as: {os.path.basename(output_path)} in "
-              f"{merged_dir}")
+        print(f"\nMerged file saved as: {COLORS[2]}{os.path.basename(output_path)}{RESET}")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"{COLORS[0]}An error occurred: {e}{RESET}")
 
     return output_path, merged_dir

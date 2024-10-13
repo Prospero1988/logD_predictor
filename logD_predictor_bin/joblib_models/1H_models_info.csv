@@ -1,0 +1,4 @@
+﻿model_path;model_name;RMSE;MAE;R2;PEARSON;ML_algorithm;dataset;dataset_volume
+path1.pkl;XGB_1H_CHIlogD_pH_2_6;0.31234;0.6789;0.9998;0.9876;XGBoost;CHI logD pH 2_6;1265
+path2.pkl;XGB_1H_CHIlogD_pH_7_4;0.123456;0.164367;0.99999999;0.99543;XGBoost;CHI logD pH 7_4;1222
+path3.pkl;XGB_1H_CHIlogD_pH_10_5;40.066899;0.24326;0.9999987;0.89654;XGBoost;CHI logD pH 10_5;1279

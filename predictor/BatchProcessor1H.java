@@ -129,7 +129,7 @@ public class BatchProcessor1H {
 
         // If completed, move to a new line.
         if (current == total) {
-            System.out.println("\nProcessing complete.");
+            System.out.println(" ");
         }
     }
 
@@ -194,7 +194,7 @@ public class BatchProcessor1H {
             System.out.println();
 
             // Display the total number of processed .mol files in green.
-            System.out.println(ANSI_GREEN + "\nTotal number of .mol files processed for 1H NMR prediction: " + processedFileCount + ANSI_RESET);
+            System.out.println(ANSI_GREEN + "Total number of .mol files processed for 1H NMR prediction: " + processedFileCount + ANSI_RESET);
         } else {
             // Print an error message in red if no .mol files are found in the input folder.
             System.err.println(ANSI_RED + "No .mol files found in the input folder." + ANSI_RESET);

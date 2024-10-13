@@ -37,6 +37,13 @@ class Tee(object):
             f.flush()
 
 def main():
+    
+    # ANSI color
+    COLORS = ['\033[38;5;46m',    # Green
+              '\033[38;5;196m',   # Red
+              '\033[38;5;214m'    # Orange
+             ]
+    RESET = '\033[0m'
 
     # Open the log file in append mode
     log_file = open('predictor_logD.log', 'a', encoding='utf-8')
@@ -47,23 +54,71 @@ def main():
 
     try:
 
-        # Define the argument parser for command-line options
+        # Define the argument parser for command-line options with RawTextHelpFormatter
         parser = argparse.ArgumentParser(
-            description="---yet to be filled--"
+            description='''
+    A script for predicting logD values based on 
+    various machine learning models trained on 
+    the representation of NMR spectra derived 
+    from the NMRshiftDB2 database predictor. 
+    
+    To obtain logD values, SMILES codes of compounds 
+    are sufficient. You can choose between models 
+    trained on data of 1H NMR spectra, 13C NMR spectra, 
+    or both. The 1H spectrum option is the fastest, 
+    while 13C spectra significantly lengthen the 
+    prediction process. Data after prediction is 
+    displayed in the terminal and saved to *.CSV files.
+    The input CSV file must contain at least two 
+    columns of data with corresponding header names. 
+    The first column “MOLECULE_NAME” contains code 
+    names of compounds, and the second “SMILES” 
+    structural codes of compounds. 
+    
+    SMILES codes can be in canonical, or Daylight 
+    format. Codes from CHEMAXON that contain 
+    additional | | operators will not work.
+
+    The script can be run with two options:
+    1. --clean: Deletes all the temporary data created 
+       while the script is running. It is a good idea 
+       to disable this option in case of prediction 
+       errors while debugging the process.
+    
+    2. --models: Displays the models' training data, 
+       including their post-training metrics and 
+       training set information.
+            ''',
+            formatter_class=argparse.RawTextHelpFormatter
         )
+        
         parser.add_argument(
             "--csv_path",
             type=str,
             required=True,
             help="Path to the input CSV file containing SMILES strings."
         )
+        
+        parser.add_argument(
+            "--predictor",
+            type=str,
+            required=True,
+            choices=['1H', '13C', 'both'],  # Restricting choices to valid ones
+            help="Select the type of predictive models: '1H', '13C', or 'both'."
+        )
+        
         parser.add_argument(
             "--clean",
             action='store_true',
-            help="If set, the script deletes all intermediate temporary "
-                 "files after execution."
+            help="If set, the script deletes all intermediate temporary files after execution."
         )
-
+        
+        parser.add_argument(
+            "--models",
+            action="store_true",
+            help="If set, the script will display a table with model details and metrics."
+        )
+        
         # Parse the command-line arguments
         args = parser.parse_args()
     
@@ -85,8 +140,8 @@ def main():
         # Step 2: Generate .mol files from SMILES strings
         mol_directory = generate_mol_files(verified_csv_path)
     
-        predictors = ['1H', '13C']
-    
+        predictors = [args.predictor] if args.predictor in ['1H', '13C'] else ['1H', '13C']
+
         for predictor in predictors:
             
             # Step 3: Predict NMR spectra and save results as .csv files
@@ -99,38 +154,38 @@ def main():
             output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor)
         
             # Step 6: Create custom headers for the final dataset
-            dataset = custom_header(output_path, verified_csv_path, predictor)
+            dataset, final_dir = custom_header(output_path, verified_csv_path, predictor)
     
             # Step 7: Query ML models
-            df2 = query(dataset, predictor, verified_csv_path)
+            df2 = query(dataset, predictor, verified_csv_path, args.models)
             
             # Optional: Clean up temporary dirs and data if the --clean flag is set
             if args.clean:
                 print(
-                    "\nScript executed with the --clean option. All temporary files "
-                    "and folders will be removed:\n"
+                    f"\nScript executed with the {COLORS[2]}--clean {RESET}option. All temporary files "
+                    f"and folders will be removed:\n"
                 )
                 temp_data = [
-                    csv_output_folder, processed_dir, merged_dir]
+                    csv_output_folder, processed_dir, merged_dir, final_dir]
                 
                 for folder in temp_data:
                     if os.path.exists(folder):
                         shutil.rmtree(folder)
-                        print(f"Temporary folder '{folder}' has been deleted.")
+                        print(f"Temporary folder {COLORS[2]}'{folder}'{RESET} has been deleted.")
                     else:
-                        print(f"Folder '{folder}' does not exist.")
+                        print(f"Folder {COLORS[1]}'{folder}'{RESET} does not exist.")
         if args.clean:
             if os.path.exists(verified_csv_path):
                 os.remove(verified_csv_path)
-                print(f"The file '{verified_csv_path}' has been deleted.")
+                print(f"The file {COLORS[2]}'{verified_csv_path}'{RESET} has been deleted.")
             else:
-                print(f"The file '{verified_csv_path}' does not exist.")
+                print(f"The file {COLORS[1]}'{verified_csv_path}'{RESET} does not exist.")
             
             if os.path.exists(mol_directory):
                 shutil.rmtree(mol_directory)
-                print(f"Temporary folder '{mol_directory}' has been deleted.")
+                print(f"Temporary folder {COLORS[2]}'{mol_directory}'{RESET} has been deleted.")
             else:
-                print(f"Folder '{mol_directory}' does not exist.")
+                print(f"Folder {COLORS[1]}'{mol_directory}'{RESET} does not exist.")
 
     finally:
         # Restore original sys.stdout and sys.stderr
@@ -140,7 +195,7 @@ def main():
         # Close the log file
         log_file.close()
     
-    print("\nEND OF THE SCRIPT\n")
+    print(f"{COLORS[0]}\nEND OF THE SCRIPT\n{RESET}")
 
 if __name__ == "__main__":
     main()
