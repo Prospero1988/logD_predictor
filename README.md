@@ -116,6 +116,12 @@ The `joblib_models` directory contains CSV files that define the models used for
 
 Ensure that the correct model definition files are present in this folder before running predictions. The script will load the models dynamically from these CSV files and apply them to the processed NMR spectra.
 
+### Structure of model definitions file
+
+![model_order.png](IMG/model_order.png)
+
+Structure of the file with model definitions located in the logD_predictor_bin\joblib_models directory. The content of each column is self-explanatory except for the **order** column. This is the order in which the result columns for each model are displayed in the terminal and written to the result files. This is convenient, for sorting the results by parameter or model, for example, rather than the default - alphabetically.
+
 ## Dependencies
 
 - Python 3.x
