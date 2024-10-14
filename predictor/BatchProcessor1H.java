@@ -143,6 +143,7 @@ public class BatchProcessor1H {
      *             args[3] (optional) - "no3d" flag to disable 3D data usage.
      */
     public static void main(String[] args) {
+    
         // Check if the required arguments (input and output folders) are provided.
         if (args.length < 2) {
             System.err.println(ANSI_RED + "Usage: java BatchProcessor1H <inputFolder> <outputFolder> [solvent] [no3d]" + ANSI_RESET);
