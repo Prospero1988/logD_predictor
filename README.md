@@ -7,7 +7,16 @@ logD_predictor is a versatile command-line tool designed to predict the distribu
 
 The tool uses the NMRshiftDB2 predictor, which can be accessed here.
 
+# An example of the finished script run
+
+The script was run as an example for the prediction of 1H NMR spectra with an input file containing a misdefined one of the rows. In addition, a comma was inserted as the decimal separator and a semicolon was inserted as the column separator. Generally created models without hyperparameter optimization were used, the prediction results are not accurate and relevent.
+
+![Working script in PowerShell_1](IMG/logo1.png)
+![Working script in PowerShell_2](IMG/logo2.png)
+
 ## Table of Contents
+- [README](#readme)
+- [An example of the finished script run](#An-example-of-the-finished-script-run)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
