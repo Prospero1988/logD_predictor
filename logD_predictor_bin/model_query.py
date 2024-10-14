@@ -37,8 +37,11 @@ def query(dataset, predictor, verified_csv_path, show_models_table = False):
         else:
             print(f"\n{COLORS[1]}Error: Column '{col}' is not numeric, it cannot be rounded.{RESET}")
     
+    # Sorting model tables to get eaasy-to-read results of predictions
     model_table_df = model_table_df.sort_values(by='model_name').reset_index(drop=True)
-    
+    model_table_df.set_index('order', inplace=True)
+    model_table_df.sort_index(inplace=True)
+        
     # Creating a DataFrame from the input dataset
     df = pd.DataFrame(dataset)
     
@@ -48,11 +51,15 @@ def query(dataset, predictor, verified_csv_path, show_models_table = False):
     # Initializing a DataFrame to store results
     df2 = df[[df.columns[0]]].copy()  # Copying the first column with the label
 
+    # Initialize the ordered_columns list to keep track of the order of the columns.
+    ordered_columns = [df.columns[0]]
+
     try:
         # Iterating over rows in the model_table_df instead of creating lists
         for index, row in model_table_df.iterrows():
             model_path = row['model_path']
             model_name = row['model_name']
+            model_path = os.path.join(os.getcwd(), "logD_predictor_bin", "joblib_models", model_path)
             
             # Loading the model using joblib
             model = joblib.load(model_path)
@@ -62,6 +69,9 @@ def query(dataset, predictor, verified_csv_path, show_models_table = False):
             
             # Adding predictions as a new column named after the model in the DataFrame
             df2[model_name] = predictions.round(2)
+            
+            # Adding a column to ordered_columns in the order in which they are added.
+            ordered_columns.append(model_name)
     
     except Exception as e:
         print(f"{COLORS[1]}An error occurred: {e}{RESET}")
