@@ -3,7 +3,6 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 import sys
-import time
 
 # ANSI color
 COLORS = ['\033[38;5;46m',    # Green
@@ -34,6 +33,13 @@ def generate_mol_files(csv_path):
         data = pd.read_csv(csv_path)
         if 'MOLECULE_NAME' not in data.columns or 'SMILES' not in data.columns:
             raise ValueError(f"{COLORS[1]}CSV must contain 'MOLECULE_NAME' and 'SMILES' columns.{RESET}")
+            exit(1)
+        # Removing duplicates in the 'MOLECULE_NAME' column
+        initial_count = len(data)
+        data = data.drop_duplicates(subset='MOLECULE_NAME', keep='first')
+        duplicates_count = initial_count - len(data)
+        if duplicates_count > 0:
+            print(f"{COLORS[1]}\nRemoved {duplicates_count} of duplicates in 'MOLECULE_NAME'.{RESET}")
 
         file_count = 0  # Counter for successfully generated .mol files
         error_file_count = 0  # Counter for .mol files with errors
@@ -43,6 +49,7 @@ def generate_mol_files(csv_path):
         total_files = len(data)
         last_update = 0  # Last progress percentage update
         for index, row in enumerate(data.iterrows(), 1):
+            mol = None  # Initialization of the mol variable
             try:
                 name = row[1]['MOLECULE_NAME']
                 smiles = row[1]['SMILES']
@@ -75,13 +82,11 @@ def generate_mol_files(csv_path):
                 print_progress(index, total_files)
                 last_update = progress
 
-        # The line below has been removed to avoid displaying the progress bar twice
-        # print_progress(total_files, total_files)
+        # Final function call to make the progress bar reach 100%
+        print_progress(total_files, total_files)
 
         print(f"\n{COLORS[0]}Generated {file_count} .mol files in the folder {COLORS[2]}'{mols_directory}'.{RESET}")
-        
-        if error_file_count != 0:
-            print(f"{COLORS[1]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
+        print(f"{COLORS[0]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
 
     except FileNotFoundError:
         print(f"{COLORS[1]}File not found: {csv_path}{RESET}")
