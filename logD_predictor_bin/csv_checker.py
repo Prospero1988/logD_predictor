@@ -1,5 +1,6 @@
 import pandas as pd
 import csv
+import os
 
 def verify_csv(file_path):
     """
@@ -17,8 +18,20 @@ def verify_csv(file_path):
              ]
     RESET = '\033[0m'
 
+    # Check if input file exists
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r') as file:
+                print(f"\nRead file {COLORS[2]}{file_path}{RESET}")
+        except Exception as e:
+            print(f"{COLORS[1]}Error reading the file {file_path}.\n{e}\n{RESET}")
+            exit(1)
+    else:
+        print(f"{COLORS[1]}File {file_path} does not exist.{RESET}")
+        exit(1)
+
     try:
-        print(f"\nStarting verification of the file: {COLORS[2]}{file_path}{RESET}")
+        print(f"\nStarting verification of the file.")
         print("\nDetecting column separator...")
         with open(file_path, 'r') as file:
             sample = file.read(2048)
@@ -80,7 +93,7 @@ def verify_csv(file_path):
                 df = df.applymap(
                     lambda x: x.replace(',', '.') if isinstance(x, str) and is_comma_decimal(x) else x
                 )
-                print(f"\nReplaced decimal commas with dots.")
+                print(f"\n{COLORS[0]}Replaced decimal commas with dots.{RESET}")
             else:
                 print("\nNo decimal commas detected.")
 
