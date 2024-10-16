@@ -4,7 +4,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 import sys
 
-# ANSI color
+# ANSI color codes
 COLORS = ['\033[38;5;46m',    # Green
           '\033[38;5;196m',   # Red
           '\033[38;5;214m'    # Orange
@@ -39,17 +39,18 @@ def generate_mol_files(csv_path):
         data = data.drop_duplicates(subset='MOLECULE_NAME', keep='first')
         duplicates_count = initial_count - len(data)
         if duplicates_count > 0:
-            print(f"{COLORS[1]}\nRemoved {duplicates_count} of duplicates in 'MOLECULE_NAME'.{RESET}")
+            print(f"{COLORS[1]}\nRemoved {duplicates_count} duplicates in 'MOLECULE_NAME'.{RESET}")
 
-        file_count = 0  # Counter for successfully generated .mol files
+        file_count = 0        # Counter for successfully generated .mol files
         error_file_count = 0  # Counter for .mol files with errors
 
         print("\nGenerating *.mol files ...\n")
 
         total_files = len(data)
         last_update = 0  # Last progress percentage update
+
         for index, row in enumerate(data.iterrows(), 1):
-            mol = None  # Initialization of the mol variable
+            mol = None  # Initialize the mol variable
             try:
                 name = row[1]['MOLECULE_NAME']
                 smiles = row[1]['SMILES']
@@ -76,9 +77,9 @@ def generate_mol_files(csv_path):
                         f.write(f"{COLORS[1]}{name} could not be processed due to an error: {e}{RESET}")
                 error_file_count += 1  # Increment counter for error files
 
-            # Only update progress every 1%
+            # Update progress bar only if this is not the last file
             progress = (index / total_files) * 100
-            if progress - last_update >= 1:
+            if index != total_files and progress - last_update >= 1:
                 print_progress(index, total_files)
                 last_update = progress
 
@@ -104,8 +105,8 @@ def print_progress(current, total):
     Prints a dynamic progress bar with color to indicate progress.
 
     Parameters:
-    - current: the current file being processed
-    - total: the total number of files to process
+    - current (int): The current file being processed.
+    - total (int): The total number of files to process.
     """
     bar_length = 25  # Length of the progress bar
     filled_length = int(bar_length * (current / total))

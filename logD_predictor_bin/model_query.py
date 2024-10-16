@@ -1,6 +1,7 @@
 import pandas as pd
 import joblib
 import os
+import xgboost as xgb
 
 def query(dataset, predictor, verified_csv_path, show_models_table = False):
     
@@ -37,7 +38,7 @@ def query(dataset, predictor, verified_csv_path, show_models_table = False):
         else:
             print(f"\n{COLORS[1]}Error: Column '{col}' is not numeric, it cannot be rounded.{RESET}")
     
-    # Sorting model tables to get eaasy-to-read results of predictions
+    # Sorting model tables to get easy-to-read results of predictions
     model_table_df = model_table_df.sort_values(by='model_name').reset_index(drop=True)
     model_table_df.set_index('order', inplace=True)
     model_table_df.sort_index(inplace=True)
@@ -59,13 +60,25 @@ def query(dataset, predictor, verified_csv_path, show_models_table = False):
         for index, row in model_table_df.iterrows():
             model_path = row['model_path']
             model_name = row['model_name']
+            ml_algorithm = row['ML_algorithm']
             model_path = os.path.join(os.getcwd(), "logD_predictor_bin", "joblib_models", model_path)
             
             # Loading the model using joblib
             model = joblib.load(model_path)
             
-            # Making predictions directly on the feature data
-            predictions = model.predict(features)
+            # Check if the model is XGBoost
+            if ml_algorithm == 'XGB':
+                # Check if model is xgboost.Booster
+                if isinstance(model, xgb.Booster):
+                    # Convert features to DMatrix
+                    dmatrix_features = xgb.DMatrix(features)
+                    predictions = model.predict(dmatrix_features)
+                else:
+                    # If the model is XGBRegressor, we can use features directly
+                    predictions = model.predict(features)
+            else:
+                # Making predictions directly on the feature data
+                predictions = model.predict(features)
             
             # Adding predictions as a new column named after the model in the DataFrame
             df2[model_name] = predictions.round(2)

@@ -1,0 +1,10 @@
+﻿model_path;model_name;RMSE;MAE;MAE StDev;R2;PEARSON;ML_algorithm;dataset;dataset_volume;order
+optuna_SVR_chi026_2.pkl;SVR_05k_opt_CHI_2.6;;;;;;SVR;;;1
+optuna_SVR_chi026_3.pkl;SVR_1k_opt_CHI_2.6;;;;;;SVR;;;2
+XGB_chi026.pkl;XGB_100_opt_CHI_2.6;;;;;;XGB;;;3
+optuna_SVR_chi074_2.pkl;SVR_05k_opt_CHI_7.4;;;;;;SVR;;;4
+optuna_SVR_chi074_3.pkl;SVR_1k_opt_CHI_7.4;;;;;;SVR;;;5
+XGB_chi074.pkl;XGB_100_opt_CHI_7.4;;;;;;XGB;;;6
+optuna_SVR_chi105_2.pkl;SVR_05k_opt_CHI_10.5;;;;;;SVR;;;7
+optuna_SVR_chi105_3.pkl;SVR_1k_opt_CHI_10.5;;;;;;SVR;;;8
+XGB_chi105.pkl;XGB_100_opt_CHI_105;;;;;;XGB;;;9
