@@ -11,7 +11,7 @@ COLORS = ['\033[38;5;46m',    # Green
          ]
 RESET = '\033[0m'
 
-def generate_mol_files(csv_path):
+def generate_mol_files(csv_path, quiet=False):
     """
     Generates .mol files from SMILES strings provided in a CSV file.
 
@@ -23,11 +23,17 @@ def generate_mol_files(csv_path):
     - mols_directory (str): Path to the directory where generated .mol files
                             are stored.
     """
+
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     mols_directory = os.path.join(os.getcwd(), "mols")
 
     if not os.path.exists(mols_directory):
         os.makedirs(mols_directory)
-        print(f"\nCreated directory: {COLORS[2]}{mols_directory}{RESET}")
+        verbose_print(f"\nCreated directory: {COLORS[2]}{mols_directory}{RESET}")
 
     try:
         data = pd.read_csv(csv_path)
@@ -39,12 +45,12 @@ def generate_mol_files(csv_path):
         data = data.drop_duplicates(subset='MOLECULE_NAME', keep='first')
         duplicates_count = initial_count - len(data)
         if duplicates_count > 0:
-            print(f"{COLORS[1]}\nRemoved {duplicates_count} duplicates in 'MOLECULE_NAME'.{RESET}")
+            verbose_print(f"{COLORS[1]}\nRemoved {duplicates_count} duplicates in 'MOLECULE_NAME'.{RESET}")
 
         file_count = 0        # Counter for successfully generated .mol files
         error_file_count = 0  # Counter for .mol files with errors
 
-        print("\nGenerating *.mol files ...\n")
+        verbose_print("\nGenerating *.mol files ...\n")
 
         total_files = len(data)
         last_update = 0  # Last progress percentage update
@@ -86,8 +92,8 @@ def generate_mol_files(csv_path):
         # Final function call to make the progress bar reach 100%
         print_progress(total_files, total_files)
 
-        print(f"\n{COLORS[0]}Generated {file_count} .mol files in the folder {COLORS[2]}'{mols_directory}'.{RESET}")
-        print(f"{COLORS[0]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
+        verbose_print(f"\n{COLORS[0]}Generated {file_count} .mol files in the folder {COLORS[2]}'{mols_directory}'.{RESET}")
+        verbose_print(f"{COLORS[0]}Generated {error_file_count} .mol files with errors (saved as *_error.mol).{RESET}")
 
     except FileNotFoundError:
         print(f"{COLORS[1]}File not found: {csv_path}{RESET}")

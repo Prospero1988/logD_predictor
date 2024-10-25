@@ -2,7 +2,7 @@ import os
 import subprocess
 import platform
 
-def run_java_batch_processor(mol_directory, predictor):
+def run_java_batch_processor(mol_directory, predictor, quiet=False):
     """
     Compiles and runs the Java BatchProcessor for NMR spectrum prediction
     on the specified directory containing .mol files.
@@ -15,7 +15,11 @@ def run_java_batch_processor(mol_directory, predictor):
     - csv_output_folder (str): Path to the directory where the predicted CSV
                                files are stored.
     """
-    
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     # ANSI color
     COLORS = ['\033[38;5;46m',    # Green
               '\033[38;5;196m',   # Red
@@ -27,7 +31,7 @@ def run_java_batch_processor(mol_directory, predictor):
 
     if not os.path.exists(csv_output_folder):
         os.makedirs(csv_output_folder)
-        print(f"\nCreated directory: {COLORS[2]}{csv_output_folder}{RESET}")
+        verbose_print(f"\nCreated directory: {COLORS[2]}{csv_output_folder}{RESET}")
 
     # Dynamiczny separator dla classpath w zależności od systemu operacyjnego
     classpath_separator = ";" if platform.system() == "Windows" else ":"
@@ -52,8 +56,8 @@ def run_java_batch_processor(mol_directory, predictor):
 
     try:
         subprocess.run(compile_command, shell=True, check=True)
-        print(f"\nSuccessfully compiled {batch_processor_class}.")
-        print("\nSpectra prediction in progress...\n")
+        verbose_print(f"\nSuccessfully compiled {batch_processor_class}.")
+        verbose_print("\nSpectra prediction in progress...\n")
     except subprocess.CalledProcessError as e:
         print(f"{COLORS[1]}Failed to compile {batch_processor_java}: {e}{RESET}")
         return

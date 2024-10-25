@@ -18,7 +18,7 @@ from logD_predictor_bin.predictor import run_java_batch_processor
 from logD_predictor_bin.bucket import bucket
 from logD_predictor_bin.merger import merger
 from logD_predictor_bin.custom_header import custom_header
-from logD_predictor_bin.model_query import query
+from logD_predictor_bin.model_query_temp import query
 
 # Import sys and define the Tee class
 import sys
@@ -35,6 +35,10 @@ class Tee(object):
     def flush(self):
         for f in self.files:
             f.flush()
+
+def verbose_print(args, *messages):
+    if not args.quiet:
+        print(*messages)
 
 def main():
     
@@ -93,32 +97,38 @@ def main():
         )
         
         parser.add_argument(
-            "--csv_path",
+            "csv_path",
             type=str,
-            required=True,
             help="Path to the input CSV file containing SMILES strings."
         )
         
         parser.add_argument(
             "--predictor",
             type=str,
-            required=True,
+            default='both',
+            required=False,
             choices=['1H', '13C', 'both'],  # Restricting choices to valid ones
             help="Select the type of predictive models: '1H', '13C', or 'both'."
         )
         
         parser.add_argument(
-            "--clean",
+            "--debug",
             action='store_true',
-            help="If set, the script deletes all intermediate temporary files after execution."
+            help="If set, the script will not delete all intermediate temporary files after execution."
         )
         
         parser.add_argument(
             "--models",
             action="store_true",
-            help="If set, the script will display a table with model details and metrics."
+            help="If set, the script will not display a table with model details and metrics."
         )
         
+        parser.add_argument(
+            "--quiet",
+            action="store_true",
+            help="Suppress most terminal output, showing only final results."
+        )
+
         # Parse the command-line arguments
         args = parser.parse_args()
     
@@ -135,34 +145,35 @@ def main():
         print(final_art)                   
 
         # Step 1: Verify the CSV input file and correct any issues
-        verified_csv_path = verify_csv(args.csv_path)
+        verified_csv_path = verify_csv(args.csv_path, args.quiet)
     
         # Step 2: Generate .mol files from SMILES strings
-        mol_directory = generate_mol_files(verified_csv_path)
+        mol_directory = generate_mol_files(verified_csv_path, args.quiet)
     
         predictors = [args.predictor] if args.predictor in ['1H', '13C'] else ['1H', '13C']
 
         for predictor in predictors:
             
             # Step 3: Predict NMR spectra and save results as .csv files
-            csv_output_folder = run_java_batch_processor(mol_directory, predictor)
+            csv_output_folder = run_java_batch_processor(mol_directory, predictor, args.quiet)
         
             # Step 4: Perform bucketing to generate pseudo NMR spectra
-            processed_dir = bucket(csv_output_folder, predictor)
+            processed_dir = bucket(csv_output_folder, predictor, args.quiet)
         
             # Step 5: Merge spectra in CSV format into one matrix file
-            output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor)
+            output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor, args.quiet)
         
             # Step 6: Create custom headers for the final dataset
-            dataset, final_dir = custom_header(output_path, verified_csv_path, predictor)
+            dataset, final_dir = custom_header(output_path, verified_csv_path, predictor, args.quiet)
     
             # Step 7: Query ML models
-            df2 = query(dataset, predictor, verified_csv_path, args.models)
+            show_models_table = args.models
+            query(dataset, predictor, show_models_table, args.quiet)
             
             # Optional: Clean up temporary dirs and data if the --clean flag is set
-            if args.clean:
-                print(
-                    f"\nScript executed with the {COLORS[2]}--clean {RESET}option. All temporary files "
+            if not args.debug:
+                verbose_print(args, 
+                    f"\nAll temporary files "
                     f"and folders will be removed:\n"
                 )
                 temp_data = [
@@ -171,21 +182,23 @@ def main():
                 for folder in temp_data:
                     if os.path.exists(folder):
                         shutil.rmtree(folder)
-                        print(f"Temporary folder {COLORS[2]}'{folder}'{RESET} has been deleted.")
+                        verbose_print(args, f"Temporary folder {COLORS[2]}'{folder}'{RESET} has been deleted.")
                     else:
-                        print(f"Folder {COLORS[1]}'{folder}'{RESET} does not exist.")
-        if args.clean:
+                        verbose_print(args, f"Folder {COLORS[1]}'{folder}'{RESET} does not exist.")
+                else:
+                    verbose_print(args, f"\nScript executed with the {COLORS[2]}--debug {RESET}option. All temporary files remains.")
+        if not args.debug:
             if os.path.exists(verified_csv_path):
                 os.remove(verified_csv_path)
-                print(f"The file {COLORS[2]}'{verified_csv_path}'{RESET} has been deleted.")
+                verbose_print(args, f"The file {COLORS[2]}'{verified_csv_path}'{RESET} has been deleted.")
             else:
-                print(f"The file {COLORS[1]}'{verified_csv_path}'{RESET} does not exist.")
+                verbose_print(args, f"The file {COLORS[1]}'{verified_csv_path}'{RESET} does not exist.")
             
             if os.path.exists(mol_directory):
                 shutil.rmtree(mol_directory)
-                print(f"Temporary folder {COLORS[2]}'{mol_directory}'{RESET} has been deleted.")
+                verbose_print(args, f"Temporary folder {COLORS[2]}'{mol_directory}'{RESET} has been deleted.")
             else:
-                print(f"Folder {COLORS[1]}'{mol_directory}'{RESET} does not exist.")
+                verbose_print(args, f"Folder {COLORS[1]}'{mol_directory}'{RESET} does not exist.")
 
     finally:
         # Restore original sys.stdout and sys.stderr

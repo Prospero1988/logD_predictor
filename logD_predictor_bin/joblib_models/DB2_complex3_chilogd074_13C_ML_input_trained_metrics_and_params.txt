@@ -1,0 +1,104 @@
+Model Status: Trained new model with 10-fold Cross-Validation
+
+Hyperparameters:
+max_depth: 18
+learning_rate: 0.023500194942554228
+subsample: 0.7400053185880755
+colsample_bytree: 0.5233713735648454
+colsample_bylevel: 0.3589035697330925
+colsample_bynode: 0.15749215608519512
+min_child_weight: 2.579569891101222
+gamma: 0.0003921131458317281
+reg_lambda: 2.183964126434228
+reg_alpha: 0.006541059249780135
+max_delta_step: 0.6922127220455753
+grow_policy: depthwise
+verbosity: 0
+objective: reg:squarederror
+tree_method: hist
+
+Average Metrics over folds:
+RMSE: 0.5848
+MAE: 0.4375
+MAE StDev: 0.3879
+R2: 0.6552
+Pearson: 0.8124
+
+Per-Fold Metrics:
+
+Fold 1 Metrics:
+RMSE: 0.5640
+MAE: 0.4296
+MAE StDev: 0.3654
+R2: 0.7291
+Pearson: 0.8588
+
+Fold 2 Metrics:
+RMSE: 0.6091
+MAE: 0.4468
+MAE StDev: 0.4140
+R2: 0.5925
+Pearson: 0.7705
+
+Fold 3 Metrics:
+RMSE: 0.6085
+MAE: 0.4440
+MAE StDev: 0.4161
+R2: 0.6585
+Pearson: 0.8129
+
+Fold 4 Metrics:
+RMSE: 0.5933
+MAE: 0.4561
+MAE StDev: 0.3795
+R2: 0.5897
+Pearson: 0.7781
+
+Fold 5 Metrics:
+RMSE: 0.5926
+MAE: 0.4263
+MAE StDev: 0.4116
+R2: 0.6587
+Pearson: 0.8161
+
+Fold 6 Metrics:
+RMSE: 0.5374
+MAE: 0.4064
+MAE StDev: 0.3517
+R2: 0.6724
+Pearson: 0.8215
+
+Fold 7 Metrics:
+RMSE: 0.5871
+MAE: 0.4503
+MAE StDev: 0.3768
+R2: 0.6386
+Pearson: 0.7995
+
+Fold 8 Metrics:
+RMSE: 0.6499
+MAE: 0.4868
+MAE StDev: 0.4306
+R2: 0.6164
+Pearson: 0.7868
+
+Fold 9 Metrics:
+RMSE: 0.5707
+MAE: 0.4359
+MAE StDev: 0.3684
+R2: 0.6888
+Pearson: 0.8372
+
+Fold 10 Metrics:
+RMSE: 0.5356
+MAE: 0.3924
+MAE StDev: 0.3646
+R2: 0.7075
+Pearson: 0.8422
+
+Metrics for Final Model Trained on Full Data:
+RMSE: 0.1712
+MAE: 0.1219
+MAE StDev: 0.1201
+R2: 0.9709
+Pearson: 0.9863

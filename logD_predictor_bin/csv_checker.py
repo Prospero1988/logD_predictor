@@ -2,7 +2,7 @@ import pandas as pd
 import csv
 import os
 
-def verify_csv(file_path):
+def verify_csv(file_path, quiet=False):
     """
     Function to verify and modify a CSV file by handling separators, decimal
     points, and column structure. Additionally, it cleans up the first column
@@ -10,7 +10,11 @@ def verify_csv(file_path):
     
     If any rows are malformed (i.e., column count mismatch), they are reported.
     """
-    
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     # ANSI color
     COLORS = ['\033[38;5;46m',    # Green
               '\033[38;5;196m',   # Red
@@ -22,7 +26,7 @@ def verify_csv(file_path):
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r') as file:
-                print(f"\nRead file {COLORS[2]}{file_path}{RESET}")
+                verbose_print(f"\nRead file {COLORS[2]}{file_path}{RESET}")
         except Exception as e:
             print(f"{COLORS[1]}Error reading the file {file_path}.\n{e}\n{RESET}")
             exit(1)
@@ -31,24 +35,24 @@ def verify_csv(file_path):
         exit(1)
 
     try:
-        print(f"\nStarting verification of the file.")
-        print("\nDetecting column separator...")
+        verbose_print(f"\nStarting verification of the file.")
+        verbose_print("\nDetecting column separator...")
         with open(file_path, 'r') as file:
             sample = file.read(2048)
 
         delimiter_candidates = [',', ';', '\t']
         delimiter_counts = {delim: sample.count(delim) for delim in delimiter_candidates}
         separator = max(delimiter_counts, key=delimiter_counts.get)
-        print(f"\nDetected column separator: {COLORS[2]}'{separator}'{RESET}")
+        verbose_print(f"\nDetected column separator: {COLORS[2]}'{separator}'{RESET}")
 
-        print("\nReading header to determine expected number of columns...")
+        verbose_print("\nReading header to determine expected number of columns...")
         with open(file_path, 'r') as file:
             reader = csv.reader(file, delimiter=separator)
             headers = next(reader)
             expected_columns = len(headers)
-            print(f"\nExpected number of columns: {COLORS[2]}{expected_columns}{RESET}")
+            verbose_print(f"\nExpected number of columns: {COLORS[2]}{expected_columns}{RESET}")
 
-        print("\nLoading CSV file and checking for malformed rows...")
+        verbose_print("\nLoading CSV file and checking for malformed rows...")
         
         # Track malformed rows
         malformed_rows = []
@@ -65,11 +69,11 @@ def verify_csv(file_path):
             print(f"\n{COLORS[1]}Total malformed rows: {len(malformed_rows)}{RESET}\n"
                   f"{COLORS[1]}Malformed rows will not be used in further processing.{RESET}")
         else:
-            print(f"\n{COLORS[0]}No malformed rows detected.{RESET}")
+            verbose_print(f"\n{COLORS[0]}No malformed rows detected.{RESET}")
 
         # Load the data, skipping malformed rows
         df = pd.read_csv(file_path, delimiter=separator, on_bad_lines='skip')
-        print(f"\nLoaded CSV file with shape: {COLORS[2]}{df.shape}{RESET}")
+        verbose_print(f"\nLoaded CSV file with shape: {COLORS[2]}{df.shape}{RESET}")
 
     except Exception as e:
         print(f"\n{COLORS[1]}Error reading file or detecting delimiter: {e}{RESET}")
@@ -77,7 +81,7 @@ def verify_csv(file_path):
 
     try:
         if separator == ';':
-            print(f"\nSeparator is {COLORS[2]}semicolon{RESET}. Checking for decimal commas...")
+            verbose_print(f"\nSeparator is {COLORS[2]}semicolon{RESET}. Checking for decimal commas...")
 
             def is_comma_decimal(cell):
                 try:
@@ -89,20 +93,20 @@ def verify_csv(file_path):
                     return False
 
             if df.applymap(is_comma_decimal).any().any():
-                print("\nDetected commas as decimal points. Replacing with dots...")
+                verbose_print("\nDetected commas as decimal points. Replacing with dots...")
                 df = df.applymap(
                     lambda x: x.replace(',', '.') if isinstance(x, str) and is_comma_decimal(x) else x
                 )
-                print(f"\n{COLORS[0]}Replaced decimal commas with dots.{RESET}")
+                verbose_print(f"\n{COLORS[0]}Replaced decimal commas with dots.{RESET}")
             else:
-                print("\nNo decimal commas detected.")
+                verbose_print("\nNo decimal commas detected.")
 
         column_count = len(df.columns)
-        print(f"\nNumber of columns in the CSV file: {COLORS[2]}{column_count}{RESET}")
+        verbose_print(f"\nNumber of columns in the CSV file: {COLORS[2]}{column_count}{RESET}")
         if column_count > 3:
-            print("\nRemoving excess columns...")
+            verbose_print("\nRemoving excess columns...")
             df = df.iloc[:, :3]
-            print(f"\nReduced to {df.shape[1]} columns.")
+            verbose_print(f"\nReduced to {df.shape[1]} columns.")
 
         verified_file_path = file_path.replace('.csv', '_verified.csv')
         if separator == ';':
@@ -110,7 +114,7 @@ def verify_csv(file_path):
         else:
             df.to_csv(verified_file_path, index=False, sep=separator)
 
-        print("\nCleaning up the first column (molecule names)...")
+        verbose_print("\nCleaning up the first column (molecule names)...")
 
         def clean_molecule_name(name):
             if isinstance(name, str):
@@ -122,11 +126,23 @@ def verify_csv(file_path):
 
         df.iloc[:, 0] = df.iloc[:, 0].apply(clean_molecule_name)
         df.to_csv(verified_file_path, index=False, sep=',')
-        print(f"\nCSV file saved at: {COLORS[2]}{verified_file_path}{RESET}")
+        verbose_print(f"\nCSV file saved at: {COLORS[2]}{verified_file_path}{RESET}")
 
+        # Checking for NaN values in any column and removing rows with NaN
+        try:
+            nan_count = df.isna().sum().sum()  # Total NaN values
+            if nan_count > 0:
+                df = df.dropna()  # Drop rows with any NaN value
+                verbose_print(f"\n{COLORS[1]}Found {nan_count} NaN values. Rows containing NaN have been removed.{RESET}")
+                df.to_csv(verified_file_path, index=False, sep=',')
+            else:
+                verbose_print(f"\n{COLORS[0]}No NaN values found in the file.{RESET}")
+        except Exception as e:
+            print(f"\n{COLORS[1]}Error while checking for NaN values: {e}{RESET}")
+        
     except Exception as e:
         print(f"\n{COLORS[1]}Error processing CSV file: {e}{RESET}")
         return None
 
-    print(f"{COLORS[0]}\nVerification and modifications completed successfully.{RESET}")
+    verbose_print(f"{COLORS[0]}\nVerification and modifications completed successfully.{RESET}")
     return verified_file_path

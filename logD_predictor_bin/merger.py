@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 
-def merger(processed_dir, csv_path, predictor):
+def merger(processed_dir, csv_path, predictor, quiet=False):
     """
     Merges multiple CSV files in the specified directory into a single
     DataFrame,
@@ -21,7 +21,11 @@ def merger(processed_dir, csv_path, predictor):
     - merged_dir (str): Path to the directory where the merged CSV file
     is saved.
     """
-    
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     # ANSI color
     COLORS = ['\033[38;5;46m',    # Green
               '\033[38;5;196m',   # Red
@@ -50,14 +54,14 @@ def merger(processed_dir, csv_path, predictor):
 
         merged_dir = os.path.join(os.getcwd(), f'{predictor}_merged')
         if not os.path.exists(merged_dir):
-            print(f"\n{COLORS[2]}{merged_dir}{RESET} directory has been created.")
+            verbose_print(f"\n{COLORS[2]}{merged_dir}{RESET} directory has been created.")
             os.makedirs(merged_dir, exist_ok=True)
 
         file_name = os.path.basename(csv_path).split('.')[0] + '_merged.csv'
         output_path = os.path.join(merged_dir, file_name)
 
         df_merged.to_csv(output_path, index=False, header=True)
-        print(f"\nMerged file saved as: {COLORS[2]}{os.path.basename(output_path)}{RESET}")
+        verbose_print(f"\nMerged file saved as: {COLORS[2]}{os.path.basename(output_path)}{RESET}")
 
     except Exception as e:
         print(f"{COLORS[0]}An error occurred: {e}{RESET}")

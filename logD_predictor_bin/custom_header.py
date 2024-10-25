@@ -3,7 +3,7 @@
 import os
 import pandas as pd
 
-def custom_header(output_path, csv_path, predictor):
+def custom_header(output_path, csv_path, predictor, quiet=False):
     """
     Adds custom headers to the provided DataFrame based on the number of
     columns and saves it as a new CSV file.
@@ -19,6 +19,11 @@ def custom_header(output_path, csv_path, predictor):
     - None
     """
     
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     # ANSI color
     COLORS = ['\033[38;5;46m',    # Green
               '\033[38;5;196m',   # Red
@@ -49,7 +54,7 @@ def custom_header(output_path, csv_path, predictor):
         file_name = os.path.join(final_dir, f"{file_name}_{predictor}_ML_querry.csv")
 
         merged.to_csv(file_name, index=False)
-        print(f"\nFinal ML querry file saved as: {COLORS[2]}{os.path.basename(file_name)}{RESET}"
+        verbose_print(f"\nFinal ML querry file saved as: {COLORS[2]}{os.path.basename(file_name)}{RESET}"
               f" in {COLORS[2]}{final_dir}{RESET}\n")
 
     except Exception as e:

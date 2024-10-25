@@ -5,7 +5,7 @@ import csv
 import numpy as np
 
 
-def bucket(directory, predictor):
+def bucket(directory, predictor, quiet=False):
     """
     Function to bucket NMR spectra data based on the type of predictor
     (1H or 13C).
@@ -18,6 +18,11 @@ def bucket(directory, predictor):
     - processed_dir: Directory path where bucketed spectra files are stored.
     """
     
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     # ANSI color
     COLORS = ['\033[38;5;46m',
               '\033[38;5;196m'
@@ -85,7 +90,7 @@ def bucket(directory, predictor):
             else:
                 success_count += 1
 
-    print(f"\nSuccessfully created {success_count} files as pseudo spectra by BUCKETING.")
+    verbose_print(f"\nSuccessfully created {success_count} files as pseudo spectra by BUCKETING.")
     if error_files:
         print(f"{COLORS[1]}Files with errors: {len(error_files)}{RESET}")
         for fname, errors in error_files.items():
