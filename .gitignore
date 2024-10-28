@@ -168,7 +168,8 @@ predicted_spectra_13C/
 merged/
 bucketed_1H_spectra/
 bucketed_13C_spectra/
-13C_generated_ML_querries\
-1H_generated_ML_querries\
-1H_logD_results\
-13C_logD_results\
+13C_generated_ML_querries/
+1H_generated_ML_querries/
+1H_logD_results/
+13C_logD_results/
+FP_logD_results/

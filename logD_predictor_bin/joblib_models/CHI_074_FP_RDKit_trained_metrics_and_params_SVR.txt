@@ -1,0 +1,94 @@
+Model Status: Trained new model with 10-fold Cross-Validation
+
+Hyperparameters:
+C: 11.862165197231551
+epsilon: 0.0447586753700055
+kernel: rbf
+tol: 0.024476554935615444
+gamma: 0.001269947332283635
+
+Average Metrics over folds:
+RMSE: 0.5235
+MAE: 0.3606
+MAE StDev: 0.3792
+R2: 0.7234
+Pearson: 0.8531
+
+Per-Fold Metrics:
+
+Fold 1 Metrics:
+RMSE: 0.4994
+MAE: 0.3448
+MAE StDev: 0.3612
+R2: 0.7876
+Pearson: 0.8884
+
+Fold 2 Metrics:
+RMSE: 0.5193
+MAE: 0.3653
+MAE StDev: 0.3690
+R2: 0.7039
+Pearson: 0.8421
+
+Fold 3 Metrics:
+RMSE: 0.5097
+MAE: 0.3413
+MAE StDev: 0.3786
+R2: 0.7604
+Pearson: 0.8746
+
+Fold 4 Metrics:
+RMSE: 0.5466
+MAE: 0.3827
+MAE StDev: 0.3902
+R2: 0.6518
+Pearson: 0.8149
+
+Fold 5 Metrics:
+RMSE: 0.5796
+MAE: 0.3801
+MAE StDev: 0.4375
+R2: 0.6735
+Pearson: 0.8221
+
+Fold 6 Metrics:
+RMSE: 0.4685
+MAE: 0.3326
+MAE StDev: 0.3300
+R2: 0.7510
+Pearson: 0.8667
+
+Fold 7 Metrics:
+RMSE: 0.4712
+MAE: 0.3502
+MAE StDev: 0.3152
+R2: 0.7673
+Pearson: 0.8777
+
+Fold 8 Metrics:
+RMSE: 0.5859
+MAE: 0.4078
+MAE StDev: 0.4207
+R2: 0.6883
+Pearson: 0.8336
+
+Fold 9 Metrics:
+RMSE: 0.5464
+MAE: 0.3677
+MAE StDev: 0.4041
+R2: 0.7148
+Pearson: 0.8513
+
+Fold 10 Metrics:
+RMSE: 0.5089
+MAE: 0.3329
+MAE StDev: 0.3849
+R2: 0.7359
+Pearson: 0.8596
+
+Metrics for Final Model Trained on Full Data:
+RMSE: 0.1797
+MAE: 0.0890
+MAE StDev: 0.1561
+R2: 0.9680
+Pearson: 0.9841

@@ -1,16 +1,15 @@
-import os
-import shutil
-import re
 import subprocess
 import sys
 
-# List of modules to check and install if necessary
+# List of modules to check and install if necessary with specified versions
 modules = [
     ('tqdm', 'tqdm'),
     ('pandas', 'pandas'),
     ('art', 'art'),
-    ('numpy', 'numpy'),
-    ('rdkit', 'rdkit')
+    ('numpy', 'numpy==1.24.4'),
+    ('rdkit', 'rdkit'),
+    ('scikit-learn', 'scikit-learn==1.3.2'),
+    ('xgboost', 'xgboost==2.1.1')
 ]
 
 # Function to check and install a module
@@ -30,9 +29,16 @@ for module_name, package_name in modules:
     check_and_install(module_name, package_name)
 
 # Importing verified modules
-from tqdm import tqdm
-import zipfile
-import rarfile
+try:
+    from tqdm import tqdm
+    import pandas as pd
+    import art
+    import numpy as np
+    from rdkit import Chem
+    import sklearn
+    import xgboost as xgb
+    print("\nAll required modules are installed and successfully imported.\n")
+except ImportError as e:
+    print(f"Error importing modules: {e}")
 
-print("\nAll required modules are installed.\n")
 input("Press ENTER to exit: ")

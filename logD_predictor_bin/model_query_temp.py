@@ -75,7 +75,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
 
     # Loading dataset containing columns 'MOLECULE_NAME' and 'FEATURES'
     df = pd.DataFrame(dataset)
-    
+
     # Iterating over each row in the dataset
     for index, row in df.iterrows():
         structure = row
@@ -99,12 +99,14 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
 
                 structure_result[model_name] = predicted_value
 
-            # Calculate average of all models for the current property
+            # Calculate average and standard deviation of all models for the current property
             average_value = round(structure_result.iloc[0, 1:].mean(), 2)
-            
-            # Add the average to structure_result
+            std_value = round(structure_result.iloc[0, 1:].std(), 2)
+
+            # Add the average and standard deviation to structure_result
             structure_result_with_average = structure_result.copy()
             structure_result_with_average['Average'] = average_value
+            structure_result_with_average['StdDev'] = std_value
 
             # Save results
             structure_result_path = os.path.join(ultimate_dir, f'{molecule_name}_{prop_value}.csv')
@@ -113,20 +115,37 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
             verbose_print(f'Property: {COLORS[2]}{prop_value}{RESET} Molecule: {COLORS[2]}{molecule_name}{RESET}')
             verbose_print(structure_result.to_string(index=False))
             verbose_print(f'\n   Average value: {COLORS[0]}{average_value}{RESET}')
+            verbose_print(f'   Standard Deviation: {COLORS[0]}{std_value}{RESET}')
             verbose_print('-----------------------------')
             
-            # Add or update average property value in summary_results
-            col_name = f'average_{prop_value}'
+            # Add or update average and std property values in summary_results
+            col_name_avg = f'average_{prop_value}'
+            col_name_std = f'std_{prop_value}'
+
             if molecule_name in summary_results['MOLECULE_NAME'].values:
                 # Update existing row
-                summary_results.loc[summary_results['MOLECULE_NAME'] == molecule_name, col_name] = average_value
+                summary_results.loc[summary_results['MOLECULE_NAME'] == molecule_name, col_name_avg] = average_value
+                summary_results.loc[summary_results['MOLECULE_NAME'] == molecule_name, col_name_std] = std_value
             else:
-                # Create a new row with NaN for other columns and set the current average
-                new_row = pd.DataFrame({'MOLECULE_NAME': [molecule_name], col_name: [average_value]})
+                # Create a new row with NaN for other columns and set the current average and std
+                new_row = pd.DataFrame({
+                    'MOLECULE_NAME': [molecule_name],
+                    col_name_avg: [average_value],
+                    col_name_std: [std_value]
+                })
                 summary_results = pd.concat([summary_results, new_row], ignore_index=True)
-    
+
     # Fill NaN values if the same molecule name appears multiple times
     summary_results = summary_results.groupby('MOLECULE_NAME', as_index=False).first()
+
+    # Reorder columns to have std column after each average column
+    columns = ['MOLECULE_NAME']
+    for prop_value in model_table_df['property'].unique():
+        col_name_avg = f'average_{prop_value}'
+        col_name_std = f'std_{prop_value}'
+        if col_name_avg in summary_results.columns:
+            columns.extend([col_name_avg, col_name_std])
+    summary_results = summary_results[columns]
 
     # Display or save summary results
     print(f"\n{COLORS[2]}------------------------------------------{RESET}")
@@ -137,7 +156,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
     summary_results.to_csv(os.path.join(ultimate_dir, f"summary_results_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"), sep=';')
     print(f'\nResults files saved in {COLORS[2]}{ultimate_dir}{RESET}\n')
 
-    if not show_models_table:
+    if show_models_table:
         print(f"Option {COLORS[2]}--models{RESET} has not been selected. The script will display below a table"
               f" with details and training metrics for the ML models used.\n")
         

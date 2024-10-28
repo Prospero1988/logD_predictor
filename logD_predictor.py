@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Script Name: logD_predictor.py
-Description: yet to be filled
+Description: A script for predicting logD values using various machine learning models.
 """
 
 import argparse
@@ -19,6 +19,7 @@ from logD_predictor_bin.bucket import bucket
 from logD_predictor_bin.merger import merger
 from logD_predictor_bin.custom_header import custom_header
 from logD_predictor_bin.model_query_temp import query
+from logD_predictor_bin.fp_generator import fp_generator
 
 # Import sys and define the Tee class
 import sys
@@ -84,11 +85,10 @@ def main():
     additional | | operators will not work.
 
     The script can be run with two options:
-    1. --clean: Deletes all the temporary data created 
-       while the script is running. It is a good idea 
-       to disable this option in case of prediction 
-       errors while debugging the process.
-    
+    1. --debug: If set, the script will not delete 
+       all intermediate temporary files after execution.
+       This is useful for debugging.
+
     2. --models: Displays the models' training data, 
        including their post-training metrics and 
        training set information.
@@ -105,22 +105,22 @@ def main():
         parser.add_argument(
             "--predictor",
             type=str,
-            default='both',
+            default='all',
             required=False,
-            choices=['1H', '13C', 'both'],  # Restricting choices to valid ones
-            help="Select the type of predictive models: '1H', '13C', or 'both'."
+            choices=['1H', '13C', 'FP', 'all'],  # Restricting choices to valid ones
+            help="Select the type of predictive models: '1H', '13C', 'FP' or 'all'."
         )
         
         parser.add_argument(
             "--debug",
             action='store_true',
-            help="If set, the script will not delete all intermediate temporary files after execution."
+            help="If set, the script will NOT delete intermediate temporary files after execution."
         )
         
         parser.add_argument(
             "--models",
             action="store_true",
-            help="If set, the script will not display a table with model details and metrics."
+            help="If set, the script will display a table with model details and metrics."
         )
         
         parser.add_argument(
@@ -146,60 +146,80 @@ def main():
 
         # Step 1: Verify the CSV input file and correct any issues
         verified_csv_path = verify_csv(args.csv_path, args.quiet)
-    
-        # Step 2: Generate .mol files from SMILES strings
-        mol_directory = generate_mol_files(verified_csv_path, args.quiet)
-    
-        predictors = [args.predictor] if args.predictor in ['1H', '13C'] else ['1H', '13C']
+        
+        # Determine the predictors to use
+        predictors = [args.predictor] if args.predictor in ['1H', '13C', 'FP'] else ['1H', '13C', 'FP']
+
+        temp_data = []  # List to keep track of temporary directories
+        mol_directory = None  # Initialize mol_directory
 
         for predictor in predictors:
+
+            temp_dirs = []  # Temporary directories for this predictor
+
+            if predictor == 'FP':
+                # Step 2 - 4: Generate FingerPrint files
+                processed_dir = fp_generator(verified_csv_path, args.quiet)
+                temp_dirs.append(processed_dir)
+            else:
+                if mol_directory is None:
+                    # Step 2: Generate .mol files from SMILES strings
+                    mol_directory = generate_mol_files(verified_csv_path, args.quiet)
+                    temp_data.append(mol_directory)
+
+                # Step 3: Predict NMR spectra and save results as .csv files
+                csv_output_folder = run_java_batch_processor(mol_directory, predictor, args.quiet)
+                temp_dirs.append(csv_output_folder)
             
-            # Step 3: Predict NMR spectra and save results as .csv files
-            csv_output_folder = run_java_batch_processor(mol_directory, predictor, args.quiet)
-        
-            # Step 4: Perform bucketing to generate pseudo NMR spectra
-            processed_dir = bucket(csv_output_folder, predictor, args.quiet)
+                # Step 4: Perform bucketing to generate pseudo NMR spectra
+                processed_dir = bucket(csv_output_folder, predictor, args.quiet)
+                temp_dirs.append(processed_dir)
         
             # Step 5: Merge spectra in CSV format into one matrix file
             output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor, args.quiet)
+            temp_dirs.append(merged_dir)
         
             # Step 6: Create custom headers for the final dataset
             dataset, final_dir = custom_header(output_path, verified_csv_path, predictor, args.quiet)
+            temp_dirs.append(final_dir)
+    
+            # Collect all temporary directories
+            temp_data.extend(temp_dirs)
     
             # Step 7: Query ML models
             show_models_table = args.models
             query(dataset, predictor, show_models_table, args.quiet)
             
-            # Optional: Clean up temporary dirs and data if the --clean flag is set
-            if not args.debug:
-                verbose_print(args, 
-                    f"\nAll temporary files "
-                    f"and folders will be removed:\n"
-                )
-                temp_data = [
-                    csv_output_folder, processed_dir, merged_dir, final_dir]
-                
-                for folder in temp_data:
-                    if os.path.exists(folder):
-                        shutil.rmtree(folder)
-                        verbose_print(args, f"Temporary folder {COLORS[2]}'{folder}'{RESET} has been deleted.")
-                    else:
-                        verbose_print(args, f"Folder {COLORS[1]}'{folder}'{RESET} does not exist.")
-                else:
-                    verbose_print(args, f"\nScript executed with the {COLORS[2]}--debug {RESET}option. All temporary files remains.")
+        # Optional: Clean up temporary dirs and data unless the --debug flag is set
         if not args.debug:
+            verbose_print(args, 
+                f"\nAll temporary files "
+                f"and folders will be removed:\n"
+            )
+            # Use set to avoid duplicates in temp_data
+            for folder in set(temp_data):
+                if os.path.exists(folder):
+                    shutil.rmtree(folder)
+                    verbose_print(args, f"Temporary folder {COLORS[2]}'{folder}'{RESET} has been deleted.")
+                else:
+                    verbose_print(args, f"Folder {COLORS[1]}'{folder}'{RESET} does not exist.")
+
+            # Delete the verified CSV file
             if os.path.exists(verified_csv_path):
                 os.remove(verified_csv_path)
                 verbose_print(args, f"The file {COLORS[2]}'{verified_csv_path}'{RESET} has been deleted.")
             else:
                 verbose_print(args, f"The file {COLORS[1]}'{verified_csv_path}'{RESET} does not exist.")
-            
-            if os.path.exists(mol_directory):
+
+            # Delete mol_directory if it was created
+            if mol_directory and os.path.exists(mol_directory):
                 shutil.rmtree(mol_directory)
                 verbose_print(args, f"Temporary folder {COLORS[2]}'{mol_directory}'{RESET} has been deleted.")
-            else:
+            elif mol_directory:
                 verbose_print(args, f"Folder {COLORS[1]}'{mol_directory}'{RESET} does not exist.")
-
+        else:
+            verbose_print(args, f"\nScript executed with the {COLORS[2]}--debug {RESET}option. All temporary files remain.")
+        
     finally:
         # Restore original sys.stdout and sys.stderr
         sys.stdout = sys.__stdout__
