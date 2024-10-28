@@ -50,7 +50,7 @@ def generate_mol_files(csv_path, quiet=False):
         file_count = 0        # Counter for successfully generated .mol files
         error_file_count = 0  # Counter for .mol files with errors
 
-        verbose_print("\nGenerating *.mol files ...\n")
+        print("\nGenerating *.mol files ...\n")
 
         total_files = len(data)
         last_update = 0  # Last progress percentage update

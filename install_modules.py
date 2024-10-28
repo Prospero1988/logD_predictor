@@ -9,7 +9,8 @@ modules = [
     ('numpy', 'numpy==1.24.4'),
     ('rdkit', 'rdkit'),
     ('scikit-learn', 'scikit-learn==1.3.2'),
-    ('xgboost', 'xgboost==2.1.1')
+    ('xgboost', 'xgboost==2.1.1'),
+    ('PILLOW', 'pillow')
 ]
 
 # Function to check and install a module

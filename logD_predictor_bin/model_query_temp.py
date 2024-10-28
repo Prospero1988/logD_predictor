@@ -4,8 +4,8 @@ from datetime import datetime
 # W głównym skrypcie
 from logD_predictor_bin.SVR_predict import model_predictor as SVR_predictor
 from logD_predictor_bin.XGB_predict import model_predictor as XGB_predictor
-#from logD_predictor_bin.DNN_predict import model_predictor as DNN_predictor
-#from logD_predictor_bin.CNN_predict import model_predictor as CNN_predictor
+# from logD_predictor_bin.DNN_predict import model_predictor as DNN_predictor
+# from logD_predictor_bin.CNN_predict import model_predictor as CNN_predictor
 
 def query(dataset, predictor, show_models_table=False, quiet=False):
     
@@ -66,28 +66,33 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
     predictor_dict = {
         "SVR": SVR_predictor,
         "XGB": XGB_predictor,
-        #"DNN": DNN_predictor,
-        #"CNN": CNN_predictor
+        # "DNN": DNN_predictor,
+        # "CNN": CNN_predictor
     }
 
-    # DataFrame to store summary results for each molecule and property
-    summary_results = pd.DataFrame(columns=['MOLECULE_NAME'])
+    # Initialize an empty list to collect results
+    summary_data = []
 
+    # Initialize a set to keep track of all properties
+    all_properties = set()
+    
     # Loading dataset containing columns 'MOLECULE_NAME' and 'FEATURES'
     df = pd.DataFrame(dataset)
-
+    
     # Iterating over each row in the dataset
-    for index, row in df.iterrows():
-        structure = row
+    for index, structure in df.iterrows():
         molecule_name = str(structure[structure.index[0]])
         structure_features = structure.iloc[1:].to_frame().T
 
+        # Initialize a dictionary to store results for this molecule
+        molecule_data = {'MOLECULE_NAME': molecule_name}
+
         # Looping through each 'property' DataFrame in dynamic_dfs
         for df_name in dynamic_dfs:
-            # Zerowanie obiektu structure_result na początku każdej iteracji dla nowego df_name
+            # Resetting structure_result at the start of each iteration for a new df_name
             structure_result = pd.DataFrame({structure.index[0]: [structure[structure.index[0]]]})
 
-            for index, row in dynamic_dfs[df_name].iterrows():
+            for idx, row in dynamic_dfs[df_name].iterrows():
                 model_path = row['model_path']
                 model_name = row['model_name']
                 prop_value = row['property']
@@ -98,6 +103,9 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
                 predicted_value = round(float(model_predictor(model_path, structure_features)), 2)
 
                 structure_result[model_name] = predicted_value
+
+            # Collect the property
+            all_properties.add(prop_value)
 
             # Calculate average and standard deviation of all models for the current property
             average_value = round(structure_result.iloc[0, 1:].mean(), 2)
@@ -118,39 +126,49 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
             verbose_print(f'   Standard Deviation: {COLORS[0]}{std_value}{RESET}')
             verbose_print('-----------------------------')
             
-            # Add or update average and std property values in summary_results
-            col_name_avg = f'average_{prop_value}'
-            col_name_std = f'std_{prop_value}'
+            # Collect data for summary with string keys
+            molecule_data[f'{prop_value}_Average'] = average_value
+            molecule_data[f'{prop_value}_StdDev'] = std_value
 
-            if molecule_name in summary_results['MOLECULE_NAME'].values:
-                # Update existing row
-                summary_results.loc[summary_results['MOLECULE_NAME'] == molecule_name, col_name_avg] = average_value
-                summary_results.loc[summary_results['MOLECULE_NAME'] == molecule_name, col_name_std] = std_value
-            else:
-                # Create a new row with NaN for other columns and set the current average and std
-                new_row = pd.DataFrame({
-                    'MOLECULE_NAME': [molecule_name],
-                    col_name_avg: [average_value],
-                    col_name_std: [std_value]
-                })
-                summary_results = pd.concat([summary_results, new_row], ignore_index=True)
+        # Append molecule data to summary_data
+        summary_data.append(molecule_data)
 
-    # Fill NaN values if the same molecule name appears multiple times
-    summary_results = summary_results.groupby('MOLECULE_NAME', as_index=False).first()
+    # After processing all molecules, create summary_results DataFrame
+    summary_results = pd.DataFrame(summary_data)
 
-    # Reorder columns to have std column after each average column
-    columns = ['MOLECULE_NAME']
-    for prop_value in model_table_df['property'].unique():
-        col_name_avg = f'average_{prop_value}'
-        col_name_std = f'std_{prop_value}'
-        if col_name_avg in summary_results.columns:
-            columns.extend([col_name_avg, col_name_std])
-    summary_results = summary_results[columns]
+    # Process columns to create MultiIndex
+    columns = []
+    for col in summary_results.columns:
+        if col == 'MOLECULE_NAME':
+            columns.append(('MOLECULE_NAME', ''))
+        else:
+            prop, stat = col.rsplit('_', 1)
+            columns.append((prop, stat))
+
+    # Set the columns as MultiIndex
+    summary_results.columns = pd.MultiIndex.from_tuples(columns)
+
+    # Reorder columns if desired
+    # Define the desired order of properties
+    desired_properties = ['CHI_logD_pH_2.6', 'CHI_logD_pH_7.4', 'CHI_logD_pH_10.5']
+
+    # Create the list of desired columns
+    columns = [('MOLECULE_NAME', '')]
+    for prop in desired_properties:
+        columns.append((prop, 'Average'))
+        columns.append((prop, 'StdDev'))
+
+    # Reindex the DataFrame
+    summary_results = summary_results.reindex(columns=columns)
 
     # Display or save summary results
+
     print(f"\n{COLORS[2]}------------------------------------------{RESET}")
     print(f"Summary Average Results for All Molecules")
-    print(f"Predicted on {predictor} NMR ML Models")
+    if predictor in ['1H', '13C']:
+        print(f"Predicted on {COLORS[2]}{predictor} NMR {RESET}ML Models")
+    if predictor == 'FP':
+        print(f"Predicted on {COLORS[2]}RDKit Fingerprints{RESET} ML Models")
     print(f"{COLORS[2]}------------------------------------------\n{RESET}")
     print(summary_results.to_string(index=False))
     summary_results.to_csv(os.path.join(ultimate_dir, f"summary_results_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"), sep=';')
@@ -165,4 +183,3 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
         df_show_models[['model_name', 'ML_algorithm', 'property']] = df_show_models[['model_name', 'ML_algorithm', 'property']].astype('string')
         print(df_show_models)
         print('\n\n')
-        

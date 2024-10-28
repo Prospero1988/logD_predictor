@@ -196,8 +196,10 @@ def main():
                 f"\nAll temporary files "
                 f"and folders will be removed:\n"
             )
-            # Use set to avoid duplicates in temp_data
-            for folder in set(temp_data):
+
+            while temp_data:  # Continue until temp_data is empty
+                folder = temp_data.pop()  # Pop the last item to ensure each is processed only once
+
                 if os.path.exists(folder):
                     shutil.rmtree(folder)
                     verbose_print(args, f"Temporary folder {COLORS[2]}'{folder}'{RESET} has been deleted.")
@@ -211,15 +213,9 @@ def main():
             else:
                 verbose_print(args, f"The file {COLORS[1]}'{verified_csv_path}'{RESET} does not exist.")
 
-            # Delete mol_directory if it was created
-            if mol_directory and os.path.exists(mol_directory):
-                shutil.rmtree(mol_directory)
-                verbose_print(args, f"Temporary folder {COLORS[2]}'{mol_directory}'{RESET} has been deleted.")
-            elif mol_directory:
-                verbose_print(args, f"Folder {COLORS[1]}'{mol_directory}'{RESET} does not exist.")
         else:
             verbose_print(args, f"\nScript executed with the {COLORS[2]}--debug {RESET}option. All temporary files remain.")
-        
+
     finally:
         # Restore original sys.stdout and sys.stderr
         sys.stdout = sys.__stdout__

@@ -53,7 +53,7 @@ def fp_generator(csv_path, quiet=False):
         file_count = 0        # Counter for successfully generated fingerprint files
         error_file_count = 0  # Counter for fingerprint files with errors
 
-        verbose_print("\nGenerating fingerprint files ...\n")
+        print("\nGenerating fingerprint files ...\n")
 
         total_files = len(data)
         last_update = 0  # Last progress percentage update
