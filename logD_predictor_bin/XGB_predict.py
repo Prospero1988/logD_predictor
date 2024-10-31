@@ -5,7 +5,13 @@ import xgboost as xgb
 #tymczasowe wygaszenie powiadomień z ostrzeżeniami. Docelowo muszą zostać, żeby nie było problemó z wersją bibliotek
 #warnings.filterwarnings("ignore", message=".*If you are loading a serialized model.*")
 
-def model_predictor(model_path, structure_features):
+def model_predictor(model_path, structure_features, quiet):
+
+    # Definiowanie funkcji kontrolującej drukowanie
+    def verbose_print(*args, **kwargs):
+        if not quiet:
+            print(*args, **kwargs)
+
     # Loading the model using joblib
     model = joblib.load(model_path)
     structure_features = structure_features.astype(float)

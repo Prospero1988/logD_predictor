@@ -5,7 +5,7 @@ from datetime import datetime
 from logD_predictor_bin.SVR_predict import model_predictor as SVR_predictor
 from logD_predictor_bin.XGB_predict import model_predictor as XGB_predictor
 # from logD_predictor_bin.DNN_predict import model_predictor as DNN_predictor
-# from logD_predictor_bin.CNN_predict import model_predictor as CNN_predictor
+from logD_predictor_bin.CNN_predict import model_predictor as CNN_predictor
 
 def query(dataset, predictor, show_models_table=False, quiet=False):
     
@@ -67,7 +67,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
         "SVR": SVR_predictor,
         "XGB": XGB_predictor,
         # "DNN": DNN_predictor,
-        # "CNN": CNN_predictor
+        "CNN": CNN_predictor
     }
 
     # Initialize an empty list to collect results
@@ -100,7 +100,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
                 model_path = os.path.join(os.getcwd(), "logD_predictor_bin", "joblib_models", model_path)
                 
                 model_predictor = predictor_dict[ml_algorithm]
-                predicted_value = round(float(model_predictor(model_path, structure_features)), 2)
+                predicted_value = round(float(model_predictor(model_path, structure_features, quiet)), 2)
 
                 structure_result[model_name] = predicted_value
 

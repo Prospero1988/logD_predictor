@@ -1,7 +1,0 @@
-﻿model_path;model_name;RMSE;MAE;MAE StDev;R2;PEARSON;ML_algorithm;property;dataset_volume
-DB2_complex3_chilogd026_1H_ML_input_trained_model.pkl;1H_XGB_CHIlogD_pH_026;0.6435;0.4692;0.4397;0.7056;0.8429;XGB;CHI_logD_pH_2.6;1262
-DB2_complex3_chilogd074_1H_ML_input_trained_model.pkl;1H_XGB_CHIlogD_pH_074;0.617;0.4597;0.4112;0.6153;0.7899;XGB;CHI_logD_pH_7.4;1276
-DB2_complex3_chilogd105_1H_ML_input_trained_model.pkl;1H_XGB_CHIlogD_pH_105;0.736;0.5301;0.5099;0.567;0.7573;XGB;CHI_logD_pH_10.5;1223
-SVR_complex3_chilogd026_1H_ML_input_trained_model.pkl;1H_SVR_CHIlogD_pH_026;0.6949;0.5029;0.4791;0.6555;0.8126;SVR;CHI_logD_pH_2.6;1262
-SVR_complex3_chilogd074_1H_ML_input_trained_model.pkl;1H_SVR_CHIlogD_pH_074;0.6496;0.4781;0.4395;0.5759;0.7647;SVR;CHI_logD_pH_7.4;1276
-SVR_complex3_chilogd105_1H_ML_input_trained_model.pkl;1H_SVR_CHIlogD_pH_105;0.7745;0.5604;0.5342;0.5202;0.7277;SVR;CHI_logD_pH_10.5;1223
