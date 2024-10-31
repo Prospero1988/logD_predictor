@@ -2,7 +2,7 @@ import torch
 
 def model_predictor(model_path, structure_features):
     # Wczytanie modelu CNN w PyTorch
-    model = torch.load(model_path)
+    model = torch.load(model_path, map_location=torch.device('cpu'))
     model.eval()  # Ustawienie modelu w tryb ewaluacji
 
     # Konwersja `structure_features` do tensora PyTorch o odpowiednich wymiarach
