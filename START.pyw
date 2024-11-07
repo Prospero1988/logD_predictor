@@ -5,6 +5,7 @@ import subprocess
 import sys
 import os
 import webbrowser  # Import webbrowser to open URLs
+import pygame
 
 # Tooltip class
 class ToolTip:
@@ -33,36 +34,50 @@ class ToolTip:
             self.tooltip_window = None
 
 def run_script():
+
     csv_path = csv_path_var.get()
     if not csv_path:
         messagebox.showwarning("File Missing", "Please select a CSV file.")
         return
 
     predictor = predictor_var.get()
-    args = [sys.executable, "logD_predictor.py", csv_path, f"--predictor={predictor}"]
+
+    # Ensure we use python.exe instead of pythonw.exe
+    if sys.executable.endswith('pythonw.exe'):
+        python_executable = sys.executable.replace('pythonw.exe', 'python.exe')
+    else:
+        python_executable = sys.executable
+
+    # Build the command as a list of arguments
+    command = [python_executable, os.path.abspath("logD_predictor.py"), csv_path, f"--predictor={predictor}"]
 
     if debug_var.get():
-        args.append("--debug")
+        command.append('--debug')
     if models_var.get():
-        args.append("--models")
+        command.append('--models')
     if quiet_var.get():
-        args.append("--quiet")
+        command.append('--quiet')
     if chart_var.get():
-        args.append("--chart")
+        command.append('--chart')
     if use_svr_var.get():
-        args.append("--use_svr")
+        command.append('--use_svr')
     if use_xgb_var.get():
-        args.append("--use_xgb")
+        command.append('--use_xgb')
     if use_dnn_var.get():
-        args.append("--use_dnn")
+        command.append('--use_dnn')
     if use_cnn_var.get():
-        args.append("--use_cnn")
+        command.append('--use_cnn')
 
-    # Run the script in a new terminal window
     if sys.platform == "win32":
-        subprocess.Popen(["start", "cmd", "/K"] + args, shell=True)
+        from subprocess import CREATE_NEW_CONSOLE
+        # Use creationflags to open a new console window
+        subprocess.Popen(command, creationflags=CREATE_NEW_CONSOLE, cwd=os.getcwd())
+    elif sys.platform == "darwin":
+        # For macOS
+        subprocess.Popen(["open", "-a", "Terminal.app"] + command, cwd=os.getcwd())
     else:
-        subprocess.Popen(["x-terminal-emulator", "-e"] + args)
+        # For Linux
+        subprocess.Popen(["x-terminal-emulator", "-e"] + command, cwd=os.getcwd())
 
 def select_csv():
     filepath = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -80,7 +95,7 @@ def open_example_file():
         messagebox.showerror("Error", f"Could not open the file: {e}")
 
 def load_example_as_input():
-    example_file_path = os.path.join(os.getcwd(), "input_example.csv")
+    example_file_path = os.path.join(os.getcwd(),"logD_predictor_bin", "input_example.csv")
     if os.path.exists(example_file_path):
         csv_path_var.set(example_file_path)
     else:
@@ -93,6 +108,25 @@ def open_help():
 # Initialize GUI
 root = tk.Tk()
 root.title("logD Predictor GUI")
+
+# Initialize pygame mixer
+pygame.mixer.init()
+
+# Function to play music
+def play_music():
+    pygame.mixer.music.load(os.path.join("logD_predictor_bin", "music.mp3"))  # Specify your music file
+    pygame.mixer.music.play(-1)  # -1 causes infinite looping
+
+# Function to stop music and close application
+def on_closing():
+    pygame.mixer.music.stop()
+    root.destroy()
+
+# Start music when application starts
+play_music()
+
+# Bind closing of the application to stop the music
+root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Logo
 path_to_logo = os.path.join(os.getcwd(), "IMG", "LOGO.png")
@@ -113,6 +147,7 @@ tk.Entry(root, textvariable=csv_path_var, width=50).grid(row=2, column=0, column
 
 select_file_button = tk.Button(root, text="Select File", command=select_csv)
 select_file_button.grid(row=3, column=0, columnspan=2, pady=5)
+ToolTip(select_file_button, "Select a .csv file from disk containing \nthe names and structures of compounds \nin SMILES code form.")
 
 # Example buttons
 example_frame = tk.Frame(root)
@@ -120,12 +155,15 @@ example_frame.grid(row=4, column=0, columnspan=2, pady=20)
 
 example_button = tk.Button(example_frame, text="Open Input File Example", command=open_example_file)
 example_button.grid(row=0, column=0, padx=5)
+ToolTip(example_button, "Opens an example input file that can be used \nas a starting point for predictions.")
 
 load_example_button = tk.Button(example_frame, text="Start with Input Example", command=load_example_as_input)
 load_example_button.grid(row=0, column=1, padx=5)
+ToolTip(load_example_button, "Load the example input file to perform a test run \nfor predictions and familiarize yourself with the program.")
 
 help_button = tk.Button(example_frame, text="Open Help", command=open_help)
 help_button.grid(row=0, column=2, padx=5)
+ToolTip(help_button, "Opens the program's GitHub repository page, \nwhere you can find installation instructions, \nusage, and other useful information.")
 
 # Expanding frames
 def toggle_section(section_frame, section_button, expanded_text, collapsed_text):
@@ -140,30 +178,42 @@ def toggle_section(section_frame, section_button, expanded_text, collapsed_text)
 
 # SELECT REPRESENTATION
 representation_button = tk.Button(root, text="SELECT REPRESENTATION [-]",
-                                  command=lambda: toggle_section(representation_frame, representation_button, 
+                                  command=lambda: toggle_section(representation_frame, representation_button,
                                                                  "SELECT REPRESENTATION [-]", "SELECT REPRESENTATION [+]"))
 representation_button.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+ToolTip(representation_button, "Choose the type of representation that will be used\n"
+        "for predicting logD parameters.\n"
+        "Representation refers to the type of data\n" 
+        "used for training and querying the model.")
 
 representation_frame = tk.Frame(root)
 representation_frame.grid(row=6, column=0, columnspan=2, padx=10, sticky="w")
-#representation_frame.grid_remove()
+# representation_frame.grid_remove()
 
 predictor_var = tk.StringVar(value="all")
+# Define options, aliases, and tooltips
 predictor_options = {
-    "1H": "Proton (1H) NMR",
-    "13C": "Carbon (13C) NMR",
-    "FP": "RDKit Fingerprints",
-    "all": "All Above"
+    "1H": ("Proton (1H) NMR", "Use Proton (1H) NMR data for predictions."),
+    "13C": ("Carbon (13C) NMR", "Use Carbon (13C) NMR data for predictions."),
+    "FP": ("RDKit Fingerprints", "Use RDKit Fingerprints for predictions."),
+    "all": ("All Above", "Use all available predictors.")
 }
 
-for value, alias in predictor_options.items():
-    tk.Radiobutton(representation_frame, text=alias, variable=predictor_var, value=value).pack(anchor="w")
+# Create radio buttons with aliases and tooltips
+for value, (alias, tooltip_text) in predictor_options.items():
+    rb = tk.Radiobutton(representation_frame, text=alias, variable=predictor_var, value=value)
+    rb.pack(anchor="w")
+    ToolTip(rb, tooltip_text)
 
 # AVAILABLE MODELS
 available_models_button = tk.Button(root, text="AVAILABLE MODELS [+]",
                                     command=lambda: toggle_section(models_frame, available_models_button,
                                                                    "AVAILABLE MODELS [-]", "AVAILABLE MODELS [+]"))
 available_models_button.grid(row=7, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+ToolTip(available_models_button, "Select the logD models you want to query.\n\n" 
+        "The more models you select, the more accurate the result\n" 
+        "due to a larger amount of data and the possibility\n" 
+        "of better averaging.")
 
 models_frame = tk.Frame(root)
 models_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
@@ -174,16 +224,34 @@ use_xgb_var = tk.BooleanVar(value=True)
 use_dnn_var = tk.BooleanVar(value=True)
 use_cnn_var = tk.BooleanVar(value=True)
 
-tk.Checkbutton(models_frame, text="Enable SVR", variable=use_svr_var).pack(anchor="w")
-tk.Checkbutton(models_frame, text="Enable XGB", variable=use_xgb_var).pack(anchor="w")
-tk.Checkbutton(models_frame, text="Enable DNN", variable=use_dnn_var).pack(anchor="w")
-tk.Checkbutton(models_frame, text="Enable CNN", variable=use_cnn_var).pack(anchor="w")
+model_options = [
+    (use_svr_var, "Enable SVR", "Support Vector Regression Model optimized with Optuna."),
+    (use_xgb_var, "Enable XGB", "Extreme Gradient Boosting Model optimized with Optuna."),
+    (use_dnn_var, "Enable DNN", "Deep Neural Network Model optimized with Optuna."),
+    (use_cnn_var, "Enable CNN", "Convolutional Neural Network Model optimized with Optuna.")
+]
+
+# Create checkbuttons with tooltips
+for var, text, tooltip_text in model_options:
+    cb = tk.Checkbutton(models_frame, text=text, variable=var)
+    cb.pack(anchor="w")
+    ToolTip(cb, tooltip_text)
 
 # SCRIPT EXECUTION OPTIONS
 script_options_button = tk.Button(root, text="SCRIPT EXECUTION OPTIONS [+]",
                                   command=lambda: toggle_section(script_options_frame, script_options_button,
                                                                  "SCRIPT EXECUTION OPTIONS [-]", "SCRIPT EXECUTION OPTIONS [+]"))
 script_options_button.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+ToolTip(script_options_button, "Additional options for the program.\n\n"
+        "The default setup ensures clarity of operation.\n"
+        "If you want to read individual values for the given models, \n"
+        "not average values, uncheck the 'Quiet mode' option.\n"
+        "'Debug mode' saves all files generated during the program's execution,\n"
+        "including structures in mol files or NMR spectrum predictions.\n"
+        "The 'Show models' option displays detailed information \n"
+        "about the models at the end, such as their metrics and \n"
+        "statistics like RMSE or MAE. \n"
+        "'Generate charts' presents the obtained prediction values on a chart.")
 
 script_options_frame = tk.Frame(root)
 script_options_frame.grid(row=10, column=0, columnspan=2, padx=10, sticky="w")
@@ -194,10 +262,19 @@ models_var = tk.BooleanVar()
 quiet_var = tk.BooleanVar(value=True)
 chart_var = tk.BooleanVar(value=True)
 
-tk.Checkbutton(script_options_frame, text="Debug mode", variable=debug_var).pack(anchor="w")
-tk.Checkbutton(script_options_frame, text="Show models", variable=models_var).pack(anchor="w")
-tk.Checkbutton(script_options_frame, text="Quiet mode", variable=quiet_var).pack(anchor="w")
-tk.Checkbutton(script_options_frame, text="Generate charts", variable=chart_var).pack(anchor="w")
+# Define script options and tooltips
+script_options = [
+    (debug_var, "Debug mode", "Enable debug mode for additional logging and save temporary files."),
+    (models_var, "Show models", "Display Machine Learning model details in the output."),
+    (quiet_var, "Quiet mode", "Suppress non-essential output messages. Enabled by default."),
+    (chart_var, "Generate charts", "Generate charts with modeled logD values and standard deviation.")
+]
+
+# Create checkbuttons with tooltips
+for var, text, tooltip_text in script_options:
+    cb = tk.Checkbutton(script_options_frame, text=text, variable=var)
+    cb.pack(anchor="w")
+    ToolTip(cb, tooltip_text)
 
 # Run script button
 tk.Button(root, text="PREDICT!", command=run_script, font=("Arial", 10, "bold")).grid(row=11, column=0, columnspan=2, pady=20)
