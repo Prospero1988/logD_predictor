@@ -129,6 +129,17 @@ def main():
             help="Suppress most terminal output, showing only final results."
         )
 
+        parser.add_argument(
+            "--chart",
+            action="store_true",
+            help="Print results on designed plot."
+        )
+        
+        parser.add_argument("--use_svr", action="store_true", help="Enable SVR predictor.")
+        parser.add_argument("--use_xgb", action="store_true", help="Enable XGB predictor.")
+        parser.add_argument("--use_dnn", action="store_true", help="Enable DNN predictor.")
+        parser.add_argument("--use_cnn", action="store_true", help="Enable CNN predictor.")
+
         # Parse the command-line arguments
         args = parser.parse_args()
     
@@ -182,13 +193,13 @@ def main():
             # Step 6: Create custom headers for the final dataset
             dataset, final_dir = custom_header(output_path, verified_csv_path, predictor, args.quiet)
             temp_dirs.append(final_dir)
-    
+
             # Collect all temporary directories
             temp_data.extend(temp_dirs)
     
             # Step 7: Query ML models
             show_models_table = args.models
-            query(dataset, predictor, show_models_table, args.quiet)
+            query(dataset, predictor, show_models_table, args.quiet, args.chart, args.use_svr, args.use_xgb, args.use_dnn, args.use_cnn)
             
         # Optional: Clean up temporary dirs and data unless the --debug flag is set
         if not args.debug:

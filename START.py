@@ -47,6 +47,16 @@ def run_script():
         args.append("--models")
     if quiet_var.get():
         args.append("--quiet")
+    if chart_var.get():
+        args.append("--chart")
+    if use_svr_var.get():
+        args.append("--use_svr")
+    if use_xgb_var.get():
+        args.append("--use_xgb")
+    if use_dnn_var.get():
+        args.append("--use_dnn")
+    if use_cnn_var.get():
+        args.append("--use_cnn")
 
     # Run the script in a new terminal window
     if sys.platform == "win32":
@@ -83,79 +93,113 @@ def open_help():
 # Initialize GUI
 root = tk.Tk()
 root.title("logD Predictor GUI")
-root.geometry("400x580")  # Adjusted window height to fit logo
 
+# Logo
 path_to_logo = os.path.join(os.getcwd(), "IMG", "LOGO.png")
-# Load and display the logo image
 try:
-    logo_img = Image.open(path_to_logo)  # Replace with your logo path
+    logo_img = Image.open(path_to_logo)
     logo_img = logo_img.resize((300, 100), Image.LANCZOS)
     logo_photo = ImageTk.PhotoImage(logo_img)
     logo_label = tk.Label(root, image=logo_photo)
-    logo_label.image = logo_photo  # Keep a reference to avoid garbage collection
-    logo_label.pack(pady=10)
+    logo_label.image = logo_photo
+    logo_label.grid(row=0, column=0, columnspan=2, pady=10)
 except Exception as e:
     print("Error loading logo:", e)
 
 # CSV file path
 csv_path_var = tk.StringVar()
-tk.Label(root, text="SELECT .CSV INPUT FILE:").pack(pady=5, anchor="center")
-tk.Entry(root, textvariable=csv_path_var, width=50).pack()
+tk.Label(root, text="SELECT .CSV INPUT FILE:").grid(row=1, column=0, columnspan=2, pady=5)
+tk.Entry(root, textvariable=csv_path_var, width=50).grid(row=2, column=0, columnspan=2)
 
-# Define the Select File button
 select_file_button = tk.Button(root, text="Select File", command=select_csv)
-select_file_button.pack(pady=5)
+select_file_button.grid(row=3, column=0, columnspan=2, pady=5)
 
-# Frame for example buttons, centered in the main window, with a fixed 10-pixel padding
+# Example buttons
 example_frame = tk.Frame(root)
-example_frame.pack(anchor="center", pady=20)  # Offset by a fixed 10 pixels
+example_frame.grid(row=4, column=0, columnspan=2, pady=20)
 
-# Buttons with even padding in between
-example_button = tk.Button(example_frame, text="Input File Example", command=open_example_file)
-example_button.pack(side="left", padx=(5, 5))
+example_button = tk.Button(example_frame, text="Open Input File Example", command=open_example_file)
+example_button.grid(row=0, column=0, padx=5)
 
 load_example_button = tk.Button(example_frame, text="Start with Input Example", command=load_example_as_input)
-load_example_button.pack(side="left", padx=(5, 5))
+load_example_button.grid(row=0, column=1, padx=5)
 
 help_button = tk.Button(example_frame, text="Open Help", command=open_help)
-help_button.pack(side="left", padx=(5, 5))
+help_button.grid(row=0, column=2, padx=5)
 
-# Predictor selection with aliases
-tk.Label(root, text="SELECT PREDICTOR MODEL:").pack(pady=5, anchor="center")
+# Expanding frames
+def toggle_section(section_frame, section_button, expanded_text, collapsed_text):
+    if section_frame.winfo_ismapped():
+        section_frame.grid_remove()
+        section_button.config(text=collapsed_text)
+    else:
+        section_frame.grid()
+        section_button.config(text=expanded_text)
+    root.update_idletasks()
+    root.geometry('')
+
+# SELECT REPRESENTATION
+representation_button = tk.Button(root, text="SELECT REPRESENTATION [-]",
+                                  command=lambda: toggle_section(representation_frame, representation_button, 
+                                                                 "SELECT REPRESENTATION [-]", "SELECT REPRESENTATION [+]"))
+representation_button.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
+representation_frame = tk.Frame(root)
+representation_frame.grid(row=6, column=0, columnspan=2, padx=10, sticky="w")
+#representation_frame.grid_remove()
+
 predictor_var = tk.StringVar(value="all")
-
-# Define options and aliases
 predictor_options = {
     "1H": "Proton (1H) NMR",
     "13C": "Carbon (13C) NMR",
-    "FP": "Fingerprint (FP) Analysis",
-    "all": "All Predictors"
+    "FP": "RDKit Fingerprints",
+    "all": "All Above"
 }
 
-# Create radio buttons with aliases as display text
 for value, alias in predictor_options.items():
-    tk.Radiobutton(root, text=alias, variable=predictor_var, value=value).pack(anchor="w")
+    tk.Radiobutton(representation_frame, text=alias, variable=predictor_var, value=value).pack(anchor="w")
 
-# Script execution options
-tk.Label(root, text="SCRIPT EXECUTION OPTIONS:").pack(pady=5, anchor="center")
+# AVAILABLE MODELS
+available_models_button = tk.Button(root, text="AVAILABLE MODELS [+]",
+                                    command=lambda: toggle_section(models_frame, available_models_button,
+                                                                   "AVAILABLE MODELS [-]", "AVAILABLE MODELS [+]"))
+available_models_button.grid(row=7, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
+models_frame = tk.Frame(root)
+models_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
+models_frame.grid_remove()
+
+use_svr_var = tk.BooleanVar(value=True)
+use_xgb_var = tk.BooleanVar(value=True)
+use_dnn_var = tk.BooleanVar(value=True)
+use_cnn_var = tk.BooleanVar(value=True)
+
+tk.Checkbutton(models_frame, text="Enable SVR", variable=use_svr_var).pack(anchor="w")
+tk.Checkbutton(models_frame, text="Enable XGB", variable=use_xgb_var).pack(anchor="w")
+tk.Checkbutton(models_frame, text="Enable DNN", variable=use_dnn_var).pack(anchor="w")
+tk.Checkbutton(models_frame, text="Enable CNN", variable=use_cnn_var).pack(anchor="w")
+
+# SCRIPT EXECUTION OPTIONS
+script_options_button = tk.Button(root, text="SCRIPT EXECUTION OPTIONS [+]",
+                                  command=lambda: toggle_section(script_options_frame, script_options_button,
+                                                                 "SCRIPT EXECUTION OPTIONS [-]", "SCRIPT EXECUTION OPTIONS [+]"))
+script_options_button.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
+script_options_frame = tk.Frame(root)
+script_options_frame.grid(row=10, column=0, columnspan=2, padx=10, sticky="w")
+script_options_frame.grid_remove()
+
 debug_var = tk.BooleanVar()
 models_var = tk.BooleanVar()
-quiet_var = tk.BooleanVar(value=True)  # Set quiet mode to be checked by default
+quiet_var = tk.BooleanVar(value=True)
+chart_var = tk.BooleanVar(value=True)
 
-# Checkbuttons with tooltip
-debug_button = tk.Checkbutton(root, text="Debug mode", variable=debug_var)
-debug_button.pack(anchor="w")
-ToolTip(debug_button, "Enable debug mode for additional logging. Use it to save all temporary files.")
+tk.Checkbutton(script_options_frame, text="Debug mode", variable=debug_var).pack(anchor="w")
+tk.Checkbutton(script_options_frame, text="Show models", variable=models_var).pack(anchor="w")
+tk.Checkbutton(script_options_frame, text="Quiet mode", variable=quiet_var).pack(anchor="w")
+tk.Checkbutton(script_options_frame, text="Generate charts", variable=chart_var).pack(anchor="w")
 
-models_button = tk.Checkbutton(root, text="Show models", variable=models_var)
-models_button.pack(anchor="w")
-ToolTip(models_button, "Display Machine Learning model details in the output.")
-
-quiet_button = tk.Checkbutton(root, text="Quiet mode", variable=quiet_var)
-quiet_button.pack(anchor="w")
-ToolTip(quiet_button, "Suppress non-essential output messages. Default option.")
-
-# Button to run the script
-tk.Button(root, text="START Predictions", command=run_script).pack(pady=20)
+# Run script button
+tk.Button(root, text="PREDICT!", command=run_script, font=("Arial", 10, "bold")).grid(row=11, column=0, columnspan=2, pady=20)
 
 root.mainloop()

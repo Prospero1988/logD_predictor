@@ -1,13 +1,15 @@
 import pandas as pd
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
+
 # W głównym skrypcie
 from logD_predictor_bin.SVR_predict import model_predictor as SVR_predictor
 from logD_predictor_bin.XGB_predict import model_predictor as XGB_predictor
-# from logD_predictor_bin.DNN_predict import model_predictor as DNN_predictor
+from logD_predictor_bin.DNN_predict import model_predictor as DNN_predictor
 from logD_predictor_bin.CNN_predict import model_predictor as CNN_predictor
 
-def query(dataset, predictor, show_models_table=False, quiet=False):
+def query(dataset, predictor, show_models_table=False, quiet=False, chart=False, use_svr=False, use_xgb=False, use_dnn=False, use_cnn=False):
     
     # Definiowanie funkcji kontrolującej drukowanie
     def verbose_print(*args, **kwargs):
@@ -53,7 +55,41 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
         print(f"\n{COLORS[2]}{ultimate_dir}{RESET} directory has been created.")
         os.makedirs(ultimate_dir, exist_ok=True)
 
-    # Creating a dictionary to store DataFrames split by 'property'
+    # Słownik predyktorów
+    origin_predictor_dict = {
+        "SVR": SVR_predictor,
+        "XGB": XGB_predictor,
+        "DNN": DNN_predictor,
+        "CNN": CNN_predictor
+    }
+    
+    # Filtracja słownika na podstawie przekazanych argumentów
+    predictor_dict = {}
+    if use_svr:
+        predictor_dict["SVR"] = origin_predictor_dict["SVR"]
+    if use_xgb:
+        predictor_dict["XGB"] = origin_predictor_dict["XGB"]
+    if use_dnn:
+        predictor_dict["DNN"] = origin_predictor_dict["DNN"]
+    if use_cnn:
+        predictor_dict["CNN"] = origin_predictor_dict["CNN"]
+    
+    # Informacja o aktywnych modelach
+    if not predictor_dict:
+        print("No predictors selected. Please enable at least one predictor (e.g., use_svr=True).")
+        return None
+
+    # **Nowa część kodu: filtracja model_table_df**
+    # Filtrujemy model_table_df, aby zawierał tylko modele z ML_algorithm, które są w predictor_dict
+    model_table_df = model_table_df[model_table_df['ML_algorithm'].isin(predictor_dict.keys())]
+
+    # Sprawdzenie, czy po filtracji model_table_df nie jest pusty
+    if model_table_df.empty:
+        print(f"{COLORS[1]}No models available for the selected predictors.{RESET}")
+        return None
+
+    # Reszta kodu pozostaje bez zmian
+    # Tworzenie dynamic_dfs na podstawie przefiltrowanego model_table_df
     dynamic_dfs = {}
 
     # Iterating over unique values in 'property' to create dynamic DataFrames
@@ -61,14 +97,6 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
         filtered_df = model_table_df[model_table_df['property'] == prop_value]
         df_name = f"df_{prop_value}"
         dynamic_dfs[df_name] = filtered_df
-
-    # Dictionary for selecting the appropriate predictor based on 'ML_algorithm'
-    predictor_dict = {
-        "SVR": SVR_predictor,
-        "XGB": XGB_predictor,
-        # "DNN": DNN_predictor,
-        "CNN": CNN_predictor
-    }
 
     # Initialize an empty list to collect results
     summary_data = []
@@ -183,3 +211,37 @@ def query(dataset, predictor, show_models_table=False, quiet=False):
         df_show_models[['model_name', 'ML_algorithm', 'property']] = df_show_models[['model_name', 'ML_algorithm', 'property']].astype('string')
         print(df_show_models)
         print('\n\n')
+
+    # Lista kolorów dla wykresów
+    colors = ['red', 'green', 'blue']
+
+    if chart:
+        # Generowanie wykresów
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        fig.subplots_adjust(wspace=0.2)  # Ustawienie wspace
+
+        for i, (ax, prop, color) in enumerate(zip(axes, desired_properties, colors)):
+            # Pobierz dane dla danego property
+            x = summary_results['MOLECULE_NAME']
+            y = summary_results[(prop, 'Average')]
+            yerr = summary_results[(prop, 'StdDev')]
+
+            # Wykres punktowy z "wąsami" błędu
+            ax.errorbar(x, y, yerr=yerr, fmt='o', capsize=5, color=color, ecolor='black')
+            ax.set_title(prop, fontweight='bold')
+            ax.set_xlabel('Molecule name/ID', fontweight='bold')
+            ax.set_ylabel('Average logD values', fontweight='bold')
+
+            # Ustawienia formatu liczby na osi Y
+            ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}'))
+
+            # Obróć etykiety osi X, jeśli to konieczne
+            ax.tick_params(axis='x', rotation=90)
+
+        plt.tight_layout()
+        # Zapisz wykres
+        chart_file_path = os.path.join(ultimate_dir, 'summary_results_plot.png')
+        plt.savefig(chart_file_path)
+        plt.show()
+
+        print(f"Plot saved as {chart_file_path}")
