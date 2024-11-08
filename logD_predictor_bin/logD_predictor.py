@@ -61,20 +61,23 @@ def verbose_print(args, *messages):
         print(*messages)
 
 def main():
-    
-    # Clear the log file at the start of each run
-    with open('RUN_LOG_FILE.log', 'w', encoding='utf-8') as log_file:
-        log_file.write("")  # Pusty zapis, aby wyczyścić zawartość pliku
+    try:
+        # Clear the log file at the start of each run
+        with open('RUN_LOG_FILE.log', 'w', encoding='utf-8') as log_file:
+            log_file.write("")  # Pusty zapis, aby wyczyścić zawartość pliku
 
-    # ANSI color
-    COLORS = ['\033[38;5;46m',    # Green
-              '\033[38;5;196m',   # Red
-              '\033[38;5;214m'    # Orange
-             ]
-    RESET = '\033[0m'
+        # ANSI color
+        COLORS = ['\033[38;5;46m',    # Green
+                '\033[38;5;196m',   # Red
+                '\033[38;5;214m'    # Orange
+                ]
+        RESET = '\033[0m'
 
-    # Open the log file in append mode
-    log_file = open('RUN_LOG_FILE.log', 'a', encoding='utf-8')
+        # Open the log file in append mode
+        log_file = open('RUN_LOG_FILE.log', 'a', encoding='utf-8')
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
     # Redirect sys.stdout and sys.stderr to the Tee instance
     sys.stdout = Tee(sys.__stdout__, log_file)
@@ -249,6 +252,11 @@ def main():
 
         else:
             verbose_print(args, f"\nScript executed with the {COLORS[2]}--debug {RESET}option. All temporary files remain.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        import traceback
+        traceback.print_exc()
 
     finally:
         # Restore original sys.stdout and sys.stderr

@@ -4,7 +4,7 @@ import sys
 # List of modules to check and install if necessary with specified versions
 modules = [
     ('tqdm', 'tqdm'),
-    ('pandas', 'pandas'),
+    ('pandas', 'pandas==2.2.3'),
     ('art', 'art'),
     ('numpy', 'numpy==1.24.4'),
     ('rdkit', 'rdkit'),

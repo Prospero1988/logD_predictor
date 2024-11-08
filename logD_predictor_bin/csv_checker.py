@@ -92,9 +92,9 @@ def verify_csv(file_path, quiet=False):
                 except ValueError:
                     return False
 
-            if df.applymap(is_comma_decimal).any().any():
+            if df.map(is_comma_decimal).any().any():
                 verbose_print("\nDetected commas as decimal points. Replacing with dots...")
-                df = df.applymap(
+                df = df.map(
                     lambda x: x.replace(',', '.') if isinstance(x, str) and is_comma_decimal(x) else x
                 )
                 verbose_print(f"\n{COLORS[0]}Replaced decimal commas with dots.{RESET}")

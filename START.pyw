@@ -70,7 +70,6 @@ def run_script():
 
     if sys.platform == "win32":
         from subprocess import CREATE_NEW_CONSOLE
-        command = f'cmd /c {" ".join(command)}' 
         subprocess.Popen(command, creationflags=CREATE_NEW_CONSOLE, cwd=os.getcwd())
 
     elif sys.platform == "darwin":
@@ -130,26 +129,25 @@ def open_log():
 root = tk.Tk()
 root.title("logD Predictor GUI")
 
-# Initialize pygame mixer
-pygame.mixer.init()
+# Music control variable
+music_var = tk.BooleanVar(value=False)
 
 # Function to play music
 def play_music():
     pygame.mixer.music.load(os.path.join("logD_predictor_bin", "music.mp3"))  # Specify your music file
-    pygame.mixer.music.play(-1)  # -1 causes infinite looping
+    #pygame.mixer.music.play(-1)  # -1 causes infinite looping
 
-# Start music when application starts
+# Start music 
+# Initialize pygame mixer
+pygame.mixer.init()
 play_music()
-
-# Music control variable
-music_var = tk.BooleanVar(value=True)
 
 # Function to toggle music
 def toggle_music():
     if music_var.get():
-        pygame.mixer.music.unpause()
+        pygame.mixer.music.play(-1)  # Start playing in a loop
     else:
-        pygame.mixer.music.pause()
+        pygame.mixer.music.stop()  # Stop the music
 
 # Bind closing of the application to stop the music
 def on_closing():
