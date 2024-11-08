@@ -1,0 +1,28 @@
+
+Welcome to the package installation program for the logD Predictor.
+
+If you need more information or assistance, please press the HELP button below.
+
+The program will install the required libraries necessary to work with the logD prediction tool, based on 1H and 13C NMR spectra or RDKit fingerprint-based predictions. 
+If there are issues installing certain packages, you may search for and install them manually. 
+The program uses Python's native package manager, PIP. 
+Below is the list of packages to be installed:
+
+	tqdm
+	pandas
+	art
+	numpy==1.24.4
+	rdkit
+	scikit-learn==1.3.2
+	xgboost==2.1.1
+	PILLOW
+	pygame
+	torch==2.5.1
+
+To install, click INSTALL; to exit the program, click CANCEL.
+
+More information on the GitHub repository page:
+https://github.com/Prospero1988/logD_predictor
+
+Author: Arkadiusz Leniak
+arkadiusz.leniak@gmail.com

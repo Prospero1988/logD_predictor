@@ -174,3 +174,4 @@ bucketed_13C_spectra/
 13C_logD_results/
 FP_logD_results/
 logD_predictor_bin/joblib_models
+Prediction_Results/

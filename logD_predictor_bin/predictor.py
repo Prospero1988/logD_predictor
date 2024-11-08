@@ -36,26 +36,29 @@ def run_java_batch_processor(mol_directory, predictor, quiet=False):
     # Dynamiczny separator dla classpath w zależności od systemu operacyjnego
     classpath_separator = ";" if platform.system() == "Windows" else ":"
 
+    # Ustawienie bieżącego katalogu na logD_predictor_bin
+    current_dir = os.path.join(os.getcwd(), "logD_predictor_bin")
+
     # Używaj os.path.join do ścieżek niezależnych od platformy
     if predictor == "1H":
-        predictor_jar = os.path.join(".", "predictor", "predictorh.jar")
-        cdk_jar = os.path.join(".", "predictor", "cdk-2.9.jar")
-        batch_processor_java = os.path.join(".", "predictor", "BatchProcessor1H.java")
+        predictor_jar = os.path.join(current_dir, "predictor", "predictorh.jar")
+        cdk_jar = os.path.join(current_dir, "predictor", "cdk-2.9.jar")
+        batch_processor_java = os.path.join(current_dir, "predictor", "BatchProcessor1H.java")
         batch_processor_class = "predictor.BatchProcessor1H"
     elif predictor == "13C":
-        predictor_jar = os.path.join(".", "predictor", "predictorc.jar")
-        cdk_jar = os.path.join(".", "predictor", "cdk-2.9.jar")
-        batch_processor_java = os.path.join(".", "predictor", "BatchProcessor13C.java")
+        predictor_jar = os.path.join(current_dir, "predictor", "predictorc.jar")
+        cdk_jar = os.path.join(current_dir, "predictor", "cdk-2.9.jar")
+        batch_processor_java = os.path.join(current_dir, "predictor", "BatchProcessor13C.java")
         batch_processor_class = "predictor.BatchProcessor13C"
 
     # Zmieniona komenda javac dla cross-platform
     compile_command = (
-        f'javac -classpath "{predictor_jar}{classpath_separator}{cdk_jar}{classpath_separator}." '
-        f'-d . -Xlint:-options -Xlint:deprecation -proc:none {batch_processor_java}'
+        f'javac -classpath "{predictor_jar}{classpath_separator}{cdk_jar}{classpath_separator}{current_dir}" '
+        f'-d "{current_dir}" -Xlint:-options -Xlint:deprecation -proc:none "{batch_processor_java}"'
     )
 
     try:
-        subprocess.run(compile_command, shell=True, check=True)
+        subprocess.run(compile_command, shell=True, check=True, cwd=current_dir)
         verbose_print(f"\nSuccessfully compiled {batch_processor_class}.")
         print("\nSpectra prediction in progress...\n")
     except subprocess.CalledProcessError as e:
@@ -64,14 +67,13 @@ def run_java_batch_processor(mol_directory, predictor, quiet=False):
 
     # Zmieniona komenda java dla cross-platform
     run_command = (
-        f'java -Xmx1g -classpath "{predictor_jar}{classpath_separator}{cdk_jar}{classpath_separator}./" '
+        f'java -Xmx1g -classpath "{predictor_jar}{classpath_separator}{cdk_jar}{classpath_separator}{current_dir}" '
         f'{batch_processor_class} "{mol_directory}" "{csv_output_folder}" '
         '"Dimethylsulphoxide-D6 (DMSO-D6, C2D6SO)"'
     )
 
-
     try:
-        subprocess.run(run_command, shell=True, check=True)
+        subprocess.run(run_command, shell=True, check=True, cwd=current_dir)
     except subprocess.CalledProcessError as e:
         print(f"{COLORS[1]}Failed to run {batch_processor_class}: {e}{RESET}")
 

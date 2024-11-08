@@ -10,29 +10,48 @@ import shutil
 import os
 import subprocess
 from art import text2art
-
-# Import custom modules required for the script
-from logD_predictor_bin.csv_checker import verify_csv
-from logD_predictor_bin.gen_mols import generate_mol_files
-from logD_predictor_bin.predictor import run_java_batch_processor
-from logD_predictor_bin.bucket import bucket
-from logD_predictor_bin.merger import merger
-from logD_predictor_bin.custom_header import custom_header
-from logD_predictor_bin.model_query_temp import query
-from logD_predictor_bin.fp_generator import fp_generator
-
-# Import sys and define the Tee class
+import re
 import sys
 
+# Import custom modules required for the script
+from csv_checker import verify_csv
+from gen_mols import generate_mol_files
+from predictor import run_java_batch_processor
+from bucket import bucket
+from merger import merger
+from custom_header import custom_header
+from model_query_temp import query
+from fp_generator import fp_generator
+
+def strip_ansi_codes(s):
+    ansi_escape = re.compile(r'''
+        \x1B  # ESC
+        (?:   # 7-bit C1 Fe (różne sekwencje)
+            [@-Z\\-_]
+        |     # lub CSI [ - \ ]
+            \[
+            [0-?]*  # Parametry opcjonalne
+            [ -/]*  # Opcjonalne bajty pośrednie
+            [@-~]   # Bajt końcowy
+        )
+    ''', re.VERBOSE)
+    return ansi_escape.sub('', s)
+
+# Import sys and define the Tee class
 class Tee(object):
     def __init__(self, *files):
         self.files = files
-    
+
     def write(self, obj):
         for f in self.files:
-            f.write(obj)
+            # Sprawdź, czy plik jest terminalem (stdout/stderr)
+            if hasattr(f, 'isatty') and f.isatty():
+                f.write(obj)
+            else:
+                # Usuń kody ANSI przed zapisem do pliku
+                f.write(strip_ansi_codes(obj))
             f.flush()
-    
+
     def flush(self):
         for f in self.files:
             f.flush()
@@ -43,6 +62,10 @@ def verbose_print(args, *messages):
 
 def main():
     
+    # Clear the log file at the start of each run
+    with open('RUN_LOG_FILE.log', 'w', encoding='utf-8') as log_file:
+        log_file.write("")  # Pusty zapis, aby wyczyścić zawartość pliku
+
     # ANSI color
     COLORS = ['\033[38;5;46m',    # Green
               '\033[38;5;196m',   # Red
@@ -51,7 +74,7 @@ def main():
     RESET = '\033[0m'
 
     # Open the log file in append mode
-    log_file = open('predictor_logD.log', 'a', encoding='utf-8')
+    log_file = open('RUN_LOG_FILE.log', 'a', encoding='utf-8')
 
     # Redirect sys.stdout and sys.stderr to the Tee instance
     sys.stdout = Tee(sys.__stdout__, log_file)
@@ -84,7 +107,7 @@ def main():
     format. Codes from CHEMAXON that contain 
     additional | | operators will not work.
 
-    The script can be run with two options:
+    The script can be run with options:
     1. --debug: If set, the script will not delete 
        all intermediate temporary files after execution.
        This is useful for debugging.
@@ -235,7 +258,8 @@ def main():
         # Close the log file
         log_file.close()
     
-    print(f"{COLORS[0]}\nEND OF THE SCRIPT\n{RESET}")
+    input(f"{COLORS[0]}\nPress ENTER to close terminal window.\n{RESET}")
+    
 
 if __name__ == "__main__":
     main()

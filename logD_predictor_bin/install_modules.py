@@ -10,7 +10,9 @@ modules = [
     ('rdkit', 'rdkit'),
     ('scikit-learn', 'scikit-learn==1.3.2'),
     ('xgboost', 'xgboost==2.1.1'),
-    ('PILLOW', 'pillow')
+    ('PILLOW', 'pillow'),
+    ('pygame', 'pygame'),
+    ('PyTorch', 'torch==2.5.1')
 ]
 
 # Function to check and install a module
@@ -38,6 +40,10 @@ try:
     from rdkit import Chem
     import sklearn
     import xgboost as xgb
+    import PIL as pillow
+    import pygame as py
+    import torch
+
     print("\nAll required modules are installed and successfully imported.\n")
 except ImportError as e:
     print(f"Error importing modules: {e}")

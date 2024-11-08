@@ -49,7 +49,7 @@ def run_script():
         python_executable = sys.executable
 
     # Build the command as a list of arguments
-    command = [python_executable, os.path.abspath("logD_predictor.py"), csv_path, f"--predictor={predictor}"]
+    command = [python_executable, os.path.abspath(os.path.join(os.getcwd(),"logD_predictor_bin", "logD_predictor.py")), csv_path, f"--predictor={predictor}"]
 
     if debug_var.get():
         command.append('--debug')
@@ -70,8 +70,9 @@ def run_script():
 
     if sys.platform == "win32":
         from subprocess import CREATE_NEW_CONSOLE
-        # Use creationflags to open a new console window
+        command = f'cmd /c {" ".join(command)}' 
         subprocess.Popen(command, creationflags=CREATE_NEW_CONSOLE, cwd=os.getcwd())
+
     elif sys.platform == "darwin":
         # For macOS
         subprocess.Popen(["open", "-a", "Terminal.app"] + command, cwd=os.getcwd())
@@ -85,7 +86,7 @@ def select_csv():
         csv_path_var.set(filepath)
 
 def open_example_file():
-    example_file_path = os.path.join(os.getcwd(), "input_example.csv")
+    example_file_path = os.path.join(os.getcwd(),"logD_predictor_bin", "input_example.csv")
     try:
         if sys.platform == "win32":
             os.startfile(example_file_path)
@@ -105,6 +106,26 @@ def open_help():
     # Open the GitHub repository in the default web browser
     webbrowser.open("https://github.com/Prospero1988/logD_predictor")
 
+def open_prediction_results():
+    prediction_results_path = os.path.join(os.getcwd(), "Prediction_Results")
+    try:
+        if sys.platform == "win32":
+            os.startfile(prediction_results_path)
+        else:
+            subprocess.Popen(["xdg-open", prediction_results_path] if sys.platform != "darwin" else ["open", prediction_results_path])
+    except Exception as e:
+        messagebox.showerror("Error", f"Could not open the folder: {e}")
+
+def open_log():
+    example_file_path = os.path.join(os.getcwd(),"RUN_LOG_FILE.log")
+    try:
+        if sys.platform == "win32":
+            os.startfile(example_file_path)
+        else:
+            subprocess.Popen(["open", example_file_path] if sys.platform == "darwin" else ["xdg-open", example_file_path])
+    except Exception as e:
+        messagebox.showerror("Error", f"Could not open the file: {e}")
+
 # Initialize GUI
 root = tk.Tk()
 root.title("logD Predictor GUI")
@@ -117,41 +138,55 @@ def play_music():
     pygame.mixer.music.load(os.path.join("logD_predictor_bin", "music.mp3"))  # Specify your music file
     pygame.mixer.music.play(-1)  # -1 causes infinite looping
 
-# Function to stop music and close application
+# Start music when application starts
+play_music()
+
+# Music control variable
+music_var = tk.BooleanVar(value=True)
+
+# Function to toggle music
+def toggle_music():
+    if music_var.get():
+        pygame.mixer.music.unpause()
+    else:
+        pygame.mixer.music.pause()
+
+# Bind closing of the application to stop the music
 def on_closing():
     pygame.mixer.music.stop()
     root.destroy()
 
-# Start music when application starts
-play_music()
-
-# Bind closing of the application to stop the music
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Logo
-path_to_logo = os.path.join(os.getcwd(), "IMG", "LOGO.png")
+path_to_logo = os.path.join(os.getcwd(), "logD_predictor_bin", "img", "LOGO.png")
 try:
     logo_img = Image.open(path_to_logo)
     logo_img = logo_img.resize((300, 100), Image.LANCZOS)
     logo_photo = ImageTk.PhotoImage(logo_img)
     logo_label = tk.Label(root, image=logo_photo)
     logo_label.image = logo_photo
-    logo_label.grid(row=0, column=0, columnspan=2, pady=10)
+    logo_label.grid(row=0, column=0, columnspan=2, pady=10, padx=20)
 except Exception as e:
     print("Error loading logo:", e)
 
+# Music Checkbutton under the logo
+music_checkbutton = tk.Checkbutton(root, text="Music ON/OFF", variable=music_var, command=toggle_music)
+music_checkbutton.grid(row=1, column=0, sticky="w", padx=20)
+ToolTip(music_checkbutton, "Toggle background music on/off")
+
 # CSV file path
 csv_path_var = tk.StringVar()
-tk.Label(root, text="SELECT .CSV INPUT FILE:").grid(row=1, column=0, columnspan=2, pady=5)
-tk.Entry(root, textvariable=csv_path_var, width=50).grid(row=2, column=0, columnspan=2)
+tk.Label(root, text="SELECT .CSV INPUT FILE:").grid(row=2, column=0, columnspan=2, pady=5)
+tk.Entry(root, textvariable=csv_path_var, width=50).grid(row=3, column=0, columnspan=2)
 
 select_file_button = tk.Button(root, text="Select File", command=select_csv)
-select_file_button.grid(row=3, column=0, columnspan=2, pady=5)
+select_file_button.grid(row=4, column=0, columnspan=2, pady=5)
 ToolTip(select_file_button, "Select a .csv file from disk containing \nthe names and structures of compounds \nin SMILES code form.")
 
 # Example buttons
 example_frame = tk.Frame(root)
-example_frame.grid(row=4, column=0, columnspan=2, pady=20)
+example_frame.grid(row=5, column=0, columnspan=2, pady=20)
 
 example_button = tk.Button(example_frame, text="Open Input File Example", command=open_example_file)
 example_button.grid(row=0, column=0, padx=5)
@@ -161,7 +196,19 @@ load_example_button = tk.Button(example_frame, text="Start with Input Example", 
 load_example_button.grid(row=0, column=1, padx=5)
 ToolTip(load_example_button, "Load the example input file to perform a test run \nfor predictions and familiarize yourself with the program.")
 
-help_button = tk.Button(example_frame, text="Open Help", command=open_help)
+# Nowa ramka na przyciski "Open Help" i "Open Prediction Results"
+action_frame = tk.Frame(root)
+action_frame.grid(row=6, column=0, columnspan=2, pady=(5,35))
+
+open_results_button = tk.Button(action_frame, text="Open Results", command=open_prediction_results)
+open_results_button.grid(row=0, column=0, padx=5)
+ToolTip(open_results_button, "Open the directory containing prediction results.")
+
+log_button = tk.Button(action_frame, text="Open LOG", command=open_log)
+log_button.grid(row=0, column=1, padx=5)
+ToolTip(log_button, "Opens a log file of the last prediction made. \nThe log file resets after each use of PREDICT!")
+
+help_button = tk.Button(action_frame, text="Open Help", command=open_help)
 help_button.grid(row=0, column=2, padx=5)
 ToolTip(help_button, "Opens the program's GitHub repository page, \nwhere you can find installation instructions, \nusage, and other useful information.")
 
@@ -180,14 +227,14 @@ def toggle_section(section_frame, section_button, expanded_text, collapsed_text)
 representation_button = tk.Button(root, text="SELECT REPRESENTATION [-]",
                                   command=lambda: toggle_section(representation_frame, representation_button,
                                                                  "SELECT REPRESENTATION [-]", "SELECT REPRESENTATION [+]"))
-representation_button.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+representation_button.grid(row=7, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 ToolTip(representation_button, "Choose the type of representation that will be used\n"
         "for predicting logD parameters.\n"
         "Representation refers to the type of data\n" 
         "used for training and querying the model.")
 
 representation_frame = tk.Frame(root)
-representation_frame.grid(row=6, column=0, columnspan=2, padx=10, sticky="w")
+representation_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
 # representation_frame.grid_remove()
 
 predictor_var = tk.StringVar(value="all")
@@ -209,14 +256,14 @@ for value, (alias, tooltip_text) in predictor_options.items():
 available_models_button = tk.Button(root, text="AVAILABLE MODELS [+]",
                                     command=lambda: toggle_section(models_frame, available_models_button,
                                                                    "AVAILABLE MODELS [-]", "AVAILABLE MODELS [+]"))
-available_models_button.grid(row=7, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+available_models_button.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 ToolTip(available_models_button, "Select the logD models you want to query.\n\n" 
         "The more models you select, the more accurate the result\n" 
         "due to a larger amount of data and the possibility\n" 
         "of better averaging.")
 
 models_frame = tk.Frame(root)
-models_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
+models_frame.grid(row=10, column=0, columnspan=2, padx=10, sticky="w")
 models_frame.grid_remove()
 
 use_svr_var = tk.BooleanVar(value=True)
@@ -241,7 +288,7 @@ for var, text, tooltip_text in model_options:
 script_options_button = tk.Button(root, text="SCRIPT EXECUTION OPTIONS [+]",
                                   command=lambda: toggle_section(script_options_frame, script_options_button,
                                                                  "SCRIPT EXECUTION OPTIONS [-]", "SCRIPT EXECUTION OPTIONS [+]"))
-script_options_button.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+script_options_button.grid(row=11, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 ToolTip(script_options_button, "Additional options for the program.\n\n"
         "The default setup ensures clarity of operation.\n"
         "If you want to read individual values for the given models, \n"
@@ -254,7 +301,7 @@ ToolTip(script_options_button, "Additional options for the program.\n\n"
         "'Generate charts' presents the obtained prediction values on a chart.")
 
 script_options_frame = tk.Frame(root)
-script_options_frame.grid(row=10, column=0, columnspan=2, padx=10, sticky="w")
+script_options_frame.grid(row=12, column=0, columnspan=2, padx=10, sticky="w")
 script_options_frame.grid_remove()
 
 debug_var = tk.BooleanVar()
@@ -277,6 +324,6 @@ for var, text, tooltip_text in script_options:
     ToolTip(cb, tooltip_text)
 
 # Run script button
-tk.Button(root, text="PREDICT!", command=run_script, font=("Arial", 10, "bold")).grid(row=11, column=0, columnspan=2, pady=20)
+tk.Button(root, text="PREDICT!", command=run_script, font=("Arial", 10, "bold")).grid(row=13, column=0, columnspan=2, pady=20)
 
 root.mainloop()

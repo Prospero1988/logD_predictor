@@ -2,12 +2,14 @@ import pandas as pd
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import sys
+import subprocess
 
 # W głównym skrypcie
-from logD_predictor_bin.SVR_predict import model_predictor as SVR_predictor
-from logD_predictor_bin.XGB_predict import model_predictor as XGB_predictor
-from logD_predictor_bin.DNN_predict import model_predictor as DNN_predictor
-from logD_predictor_bin.CNN_predict import model_predictor as CNN_predictor
+from SVR_predict import model_predictor as SVR_predictor
+from XGB_predict import model_predictor as XGB_predictor
+from DNN_predict import model_predictor as DNN_predictor
+from CNN_predict import model_predictor as CNN_predictor
 
 def query(dataset, predictor, show_models_table=False, quiet=False, chart=False, use_svr=False, use_xgb=False, use_dnn=False, use_cnn=False):
     
@@ -50,7 +52,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
             print(f"\n{COLORS[1]}Error: Column '{col}' is not numeric, it cannot be rounded.{RESET}")
         
     # Create directory for saving results
-    ultimate_dir = os.path.join(os.getcwd(), f'{predictor}_logD_results')
+    ultimate_dir = os.path.join(os.getcwd(), "Prediction_Results", f'{predictor}_logD_results')
     if not os.path.exists(ultimate_dir):
         print(f"\n{COLORS[2]}{ultimate_dir}{RESET} directory has been created.")
         os.makedirs(ultimate_dir, exist_ok=True)
@@ -125,7 +127,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
                 model_name = row['model_name']
                 prop_value = row['property']
                 ml_algorithm = row['ML_algorithm']
-                model_path = os.path.join(os.getcwd(), "logD_predictor_bin", "joblib_models", model_path)
+                model_path = os.path.join(os.getcwd(),"logD_predictor_bin", "joblib_models", model_path)
                 
                 model_predictor = predictor_dict[ml_algorithm]
                 predicted_value = round(float(model_predictor(model_path, structure_features, quiet)), 2)
@@ -216,6 +218,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
     colors = ['red', 'green', 'blue']
 
     if chart:
+
         # Generowanie wykresów
         fig, axes = plt.subplots(1, 3, figsize=(18, 6))
         fig.subplots_adjust(wspace=0.2)  # Ustawienie wspace
@@ -238,10 +241,28 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
             # Obróć etykiety osi X, jeśli to konieczne
             ax.tick_params(axis='x', rotation=90)
 
-        plt.tight_layout()
+        fig.suptitle(f"Average logD values from {predictor} representation Predictor", fontweight='bold', fontsize=16)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
         # Zapisz wykres
         chart_file_path = os.path.join(ultimate_dir, 'summary_results_plot.png')
         plt.savefig(chart_file_path)
-        plt.show()
 
         print(f"Plot saved as {chart_file_path}")
+            
+        # Otwórz zapisany obrazek w domyślnym programie do przeglądania obrazów
+        try:
+            if sys.platform.startswith('win'):
+                # Windows
+                os.startfile(chart_file_path)
+            elif sys.platform.startswith('linux'):
+                # Linux
+                subprocess.call(['xdg-open', chart_file_path])
+            elif sys.platform.startswith('darwin'):
+                # macOS
+                subprocess.call(['open', chart_file_path])
+            else:
+                print("Unsupported operating system. Cannot open the image automatically.")
+        except Exception as e:
+            print(f"Could not open image file: {e}")
+
