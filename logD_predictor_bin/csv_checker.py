@@ -10,7 +10,7 @@ def verify_csv(file_path, quiet=False):
     
     If any rows are malformed (i.e., column count mismatch), they are reported.
     """
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)

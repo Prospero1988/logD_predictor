@@ -25,14 +25,14 @@ from fp_generator import fp_generator
 
 def strip_ansi_codes(s):
     ansi_escape = re.compile(r'''
-        \x1B  # ESC
-        (?:   # 7-bit C1 Fe (różne sekwencje)
+        \x1B # ESC
+        (?:   # 7-bit C1 Fe (various sequences)
             [@-Z\\-_]
-        |     # lub CSI [ - \ ]
+        | # or CSI [ - ].
             \[
-            [0-?]*  # Parametry opcjonalne
-            [ -/]*  # Opcjonalne bajty pośrednie
-            [@-~]   # Bajt końcowy
+            [0-?]* # Optional parameters.
+            [-/]* # Optional intermediate bytes.
+            [@-~] # Final byte
         )
     ''', re.VERBOSE)
     return ansi_escape.sub('', s)
@@ -44,11 +44,11 @@ class Tee(object):
 
     def write(self, obj):
         for f in self.files:
-            # Sprawdź, czy plik jest terminalem (stdout/stderr)
+            # Check if the file is a terminal (stdout/stderr)
             if hasattr(f, 'isatty') and f.isatty():
                 f.write(obj)
             else:
-                # Usuń kody ANSI przed zapisem do pliku
+                # Remove ANSI codes before writing to file
                 f.write(strip_ansi_codes(obj))
             f.flush()
 

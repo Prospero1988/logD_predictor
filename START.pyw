@@ -4,8 +4,7 @@ from PIL import Image, ImageTk
 import subprocess
 import sys
 import os
-import webbrowser  # Import webbrowser to open URLs
-import pygame
+import webbrowser 
 
 # Tooltip class
 class ToolTip:
@@ -129,33 +128,6 @@ def open_log():
 root = tk.Tk()
 root.title("logD Predictor GUI")
 
-# Music control variable
-music_var = tk.BooleanVar(value=False)
-
-# Function to play music
-def play_music():
-    pygame.mixer.music.load(os.path.join("logD_predictor_bin", "music.mp3"))  # Specify your music file
-    #pygame.mixer.music.play(-1)  # -1 causes infinite looping
-
-# Start music 
-# Initialize pygame mixer
-pygame.mixer.init()
-play_music()
-
-# Function to toggle music
-def toggle_music():
-    if music_var.get():
-        pygame.mixer.music.play(-1)  # Start playing in a loop
-    else:
-        pygame.mixer.music.stop()  # Stop the music
-
-# Bind closing of the application to stop the music
-def on_closing():
-    pygame.mixer.music.stop()
-    root.destroy()
-
-root.protocol("WM_DELETE_WINDOW", on_closing)
-
 # Logo
 path_to_logo = os.path.join(os.getcwd(), "logD_predictor_bin", "img", "LOGO.png")
 try:
@@ -167,11 +139,6 @@ try:
     logo_label.grid(row=0, column=0, columnspan=2, pady=10, padx=20)
 except Exception as e:
     print("Error loading logo:", e)
-
-# Music Checkbutton under the logo
-music_checkbutton = tk.Checkbutton(root, text="Music ON/OFF", variable=music_var, command=toggle_music)
-music_checkbutton.grid(row=1, column=0, sticky="w", padx=20)
-ToolTip(music_checkbutton, "Toggle background music on/off")
 
 # CSV file path
 csv_path_var = tk.StringVar()
@@ -194,7 +161,7 @@ load_example_button = tk.Button(example_frame, text="Start with Input Example", 
 load_example_button.grid(row=0, column=1, padx=5)
 ToolTip(load_example_button, "Load the example input file to perform a test run \nfor predictions and familiarize yourself with the program.")
 
-# Nowa ramka na przyciski "Open Help" i "Open Prediction Results"
+# New frame for “Open Help” and “Open Prediction Results” buttons.
 action_frame = tk.Frame(root)
 action_frame.grid(row=6, column=0, columnspan=2, pady=(5,35))
 
@@ -233,7 +200,6 @@ ToolTip(representation_button, "Choose the type of representation that will be u
 
 representation_frame = tk.Frame(root)
 representation_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
-# representation_frame.grid_remove()
 
 predictor_var = tk.StringVar(value="all")
 # Define options, aliases, and tooltips

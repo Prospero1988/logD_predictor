@@ -1,8 +1,4 @@
 import joblib
-#import warnings
-
-#tymczasowe wygaszenie powiadomień z ostrzeżeniami. Docelowo muszą zostać, żeby nie było problemó z wersją bibliotek
-#warnings.filterwarnings("ignore", message=".*Trying to unpickle estimator.*")
 
 def model_predictor(model_path, structure_features, quiet):
 

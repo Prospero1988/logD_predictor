@@ -24,7 +24,7 @@ def generate_mol_files(csv_path, quiet=False):
                             are stored.
     """
 
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)

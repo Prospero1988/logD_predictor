@@ -19,7 +19,7 @@ def custom_header(output_path, csv_path, predictor, quiet=False):
     - None
     """
     
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)

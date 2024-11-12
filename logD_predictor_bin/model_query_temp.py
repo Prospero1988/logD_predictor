@@ -13,7 +13,7 @@ from CNN_predict import model_predictor as CNN_predictor
 
 def query(dataset, predictor, show_models_table=False, quiet=False, chart=False, use_svr=False, use_xgb=False, use_dnn=False, use_cnn=False):
     
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)
@@ -57,7 +57,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
         print(f"\n{COLORS[2]}{ultimate_dir}{RESET} directory has been created.")
         os.makedirs(ultimate_dir, exist_ok=True)
 
-    # Słownik predyktorów
+    # Dictionary of predictors
     origin_predictor_dict = {
         "SVR": SVR_predictor,
         "XGB": XGB_predictor,
@@ -65,7 +65,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
         "CNN": CNN_predictor
     }
     
-    # Filtracja słownika na podstawie przekazanych argumentów
+    # Filter the dictionary based on the passed arguments
     predictor_dict = {}
     if use_svr:
         predictor_dict["SVR"] = origin_predictor_dict["SVR"]
@@ -76,22 +76,21 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
     if use_cnn:
         predictor_dict["CNN"] = origin_predictor_dict["CNN"]
     
-    # Informacja o aktywnych modelach
+    # Information on active models
     if not predictor_dict:
         print("No predictors selected. Please enable at least one predictor (e.g., use_svr=True).")
         return None
 
-    # **Nowa część kodu: filtracja model_table_df**
-    # Filtrujemy model_table_df, aby zawierał tylko modele z ML_algorithm, które są w predictor_dict
+    # Filter model_table_df to contain only models with ML_algorithm that are in predictor_dict
     model_table_df = model_table_df[model_table_df['ML_algorithm'].isin(predictor_dict.keys())]
 
-    # Sprawdzenie, czy po filtracji model_table_df nie jest pusty
+    # Check if model_table_df is empty after filtering
     if model_table_df.empty:
         print(f"{COLORS[1]}No models available for the selected predictors.{RESET}")
         return None
 
-    # Reszta kodu pozostaje bez zmian
-    # Tworzenie dynamic_dfs na podstawie przefiltrowanego model_table_df
+    # The rest of the code remains unchanged
+    # Create dynamic_dfs based on the filtered model_table_df
     dynamic_dfs = {}
 
     # Iterating over unique values in 'property' to create dynamic DataFrames
@@ -214,43 +213,43 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
         print(df_show_models)
         print('\n\n')
 
-    # Lista kolorów dla wykresów
+    # List of colors for charts
     colors = ['red', 'green', 'blue']
 
     if chart:
 
-        # Generowanie wykresów
+        # Generating charts
         fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-        fig.subplots_adjust(wspace=0.2)  # Ustawienie wspace
+        fig.subplots_adjust(wspace=0.2)  
 
         for i, (ax, prop, color) in enumerate(zip(axes, desired_properties, colors)):
-            # Pobierz dane dla danego property
+            # Get the data for the property in question
             x = summary_results['MOLECULE_NAME']
             y = summary_results[(prop, 'Average')]
             yerr = summary_results[(prop, 'StdDev')]
 
-            # Wykres punktowy z "wąsami" błędu
+            # Spot chart with “whiskers” of error
             ax.errorbar(x, y, yerr=yerr, fmt='o', capsize=5, color=color, ecolor='black')
             ax.set_title(prop, fontweight='bold')
             ax.set_xlabel('Molecule name/ID', fontweight='bold')
             ax.set_ylabel('Average logD values', fontweight='bold')
 
-            # Ustawienia formatu liczby na osi Y
+            # Y-axis number format settings
             ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}'))
 
-            # Obróć etykiety osi X, jeśli to konieczne
+            # Rotate the X-axis labels, if necessary.
             ax.tick_params(axis='x', rotation=90)
 
         fig.suptitle(f"Average logD values from {predictor} representation Predictor", fontweight='bold', fontsize=16)
 
         plt.tight_layout(rect=[0, 0, 1, 0.95])
-        # Zapisz wykres
+        # Save the chart
         chart_file_path = os.path.join(ultimate_dir, 'summary_results_plot.png')
         plt.savefig(chart_file_path)
 
         print(f"Plot saved as {chart_file_path}")
             
-        # Otwórz zapisany obrazek w domyślnym programie do przeglądania obrazów
+        # Open the saved image in your default image viewer program
         try:
             if sys.platform.startswith('win'):
                 # Windows

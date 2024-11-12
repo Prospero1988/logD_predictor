@@ -18,7 +18,7 @@ def bucket(directory, predictor, quiet=False):
     - processed_dir: Directory path where bucketed spectra files are stored.
     """
     
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)

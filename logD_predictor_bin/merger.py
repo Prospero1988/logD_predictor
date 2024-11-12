@@ -21,7 +21,7 @@ def merger(processed_dir, csv_path, predictor, quiet=False):
     - merged_dir (str): Path to the directory where the merged CSV file
     is saved.
     """
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)

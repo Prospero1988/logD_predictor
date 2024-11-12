@@ -15,7 +15,7 @@ def run_java_batch_processor(mol_directory, predictor, quiet=False):
     - csv_output_folder (str): Path to the directory where the predicted CSV
                                files are stored.
     """
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)
@@ -33,13 +33,13 @@ def run_java_batch_processor(mol_directory, predictor, quiet=False):
         os.makedirs(csv_output_folder)
         verbose_print(f"\nCreated directory: {COLORS[2]}{csv_output_folder}{RESET}")
 
-    # Dynamiczny separator dla classpath w zależności od systemu operacyjnego
+    # Dynamic separator for classpath depending on operating system
     classpath_separator = ";" if platform.system() == "Windows" else ":"
 
-    # Ustawienie bieżącego katalogu na logD_predictor_bin
+    # Set the current directory to logD_predictor_bin
     current_dir = os.path.join(os.getcwd(), "logD_predictor_bin")
 
-    # Używaj os.path.join do ścieżek niezależnych od platformy
+    # Use os.path.join for platform-independent paths
     if predictor == "1H":
         predictor_jar = os.path.join(current_dir, "predictor", "predictorh.jar")
         cdk_jar = os.path.join(current_dir, "predictor", "cdk-2.9.jar")
@@ -51,7 +51,7 @@ def run_java_batch_processor(mol_directory, predictor, quiet=False):
         batch_processor_java = os.path.join(current_dir, "predictor", "BatchProcessor13C.java")
         batch_processor_class = "predictor.BatchProcessor13C"
 
-    # Zmieniona komenda javac dla cross-platform
+    # Revised javac command for cross-platform
     compile_command = (
         f'javac -classpath "{predictor_jar}{classpath_separator}{cdk_jar}{classpath_separator}{current_dir}" '
         f'-d "{current_dir}" -Xlint:-options -Xlint:deprecation -proc:none "{batch_processor_java}"'
@@ -65,7 +65,7 @@ def run_java_batch_processor(mol_directory, predictor, quiet=False):
         print(f"{COLORS[1]}Failed to compile {batch_processor_java}: {e}{RESET}")
         return
 
-    # Zmieniona komenda java dla cross-platform
+    # Revised java command for cross-platform
     run_command = (
         f'java -Xmx1g -classpath "{predictor_jar}{classpath_separator}{cdk_jar}{classpath_separator}{current_dir}" '
         f'{batch_processor_class} "{mol_directory}" "{csv_output_folder}" '

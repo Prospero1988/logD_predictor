@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import warnings
 
-# Parser dla pliku summary.txt (z poprzednich kroków)
+# Parser for summary.txt file (from previous steps)
 def parse_params_from_summary(summary_file_path):
     params = {}
     with open(summary_file_path, 'r') as f:
@@ -24,7 +23,7 @@ def parse_params_from_summary(summary_file_path):
                 key, value = line.split(':', 1)
                 key = key.strip()
                 value = value.strip()
-                # Konwersja wartości na odpowiedni typ
+                # Converting values to the appropriate type
                 if value.lower() == 'true':
                     value = True
                 elif value.lower() == 'false':
@@ -40,12 +39,12 @@ def parse_params_from_summary(summary_file_path):
                 params[key] = value
     return params
 
-# Definicja klasy Net (jak poprzednio)
+# Net class definition (as before)
 class Net(nn.Module):
     def __init__(self, params, input_dim):
         super(Net, self).__init__()
 
-        # Wybór funkcji aktywacji
+        # Activation function selection
         activation_name = params.get('activation', 'relu')
         if activation_name == 'relu':
             activation = nn.ReLU()
@@ -66,7 +65,7 @@ class Net(nn.Module):
         dropout_rate = params.get('dropout_rate', 0.0)
         use_batch_norm = params.get('use_batch_norm', False)
 
-        # Konwolucyjne warstwy
+        # Convolutional layers
         num_conv_layers = params.get('num_conv_layers', 1)
         conv_layers = []
         in_channels = 1
@@ -86,14 +85,14 @@ class Net(nn.Module):
                 conv_layers.append(nn.Dropout(dropout_rate))
             in_channels = out_channels
 
-            # Oblicz nową długość wejściową (dynamicznie obsługując różne długości danych)
+            # Calculate the new input length (dynamically handling different data lengths)
             input_length = int((input_length + 2 * padding - (kernel_size - 1) - 1) / stride + 1)
             if input_length <= 0:
                 raise ValueError('Negative or zero input length. Adjust kernel_size, stride, or padding.')
 
         self.conv = nn.Sequential(*conv_layers)
 
-        # Warstwy w pełni połączone
+        # Layers fully connected
         num_fc_layers = params.get('num_fc_layers', 2)
         fc_layers = []
         in_features = in_channels * input_length
@@ -108,7 +107,7 @@ class Net(nn.Module):
                 fc_layers.append(nn.Dropout(dropout_rate))
             in_features = out_features
 
-        fc_layers.append(nn.Linear(in_features, 1))  # Wyjście modelu
+        fc_layers.append(nn.Linear(in_features, 1)) 
         self.fc = nn.Sequential(*fc_layers)
 
         init_method = params.get('weight_init', 'xavier')
@@ -127,14 +126,14 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = self.conv(x)
-        x = x.view(x.size(0), -1)  # Spłaszczenie bez twardo określonej liczby próbek
+        x = x.view(x.size(0), -1)  
         x = self.fc(x)
         return x
 
 
 def model_predictor(model_path, structure_features, quiet):
 
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)
@@ -144,29 +143,29 @@ def model_predictor(model_path, structure_features, quiet):
 
     input_dim = structure_features.shape[1]
     model = Net(params, input_dim)
-    # Ładowanie wag modelu bez całego obiektu
+    # Loading model weights without the whole object
     model_weights = torch.load(model_path, map_location=torch.device('cpu'), weights_only=True)
-    model.load_state_dict(model_weights)  # Przekaż tylko wagi do modelu
+    model.load_state_dict(model_weights)  # Pass only the weights to the model
     model.eval()
 
-    # Konwersja `structure_features` do numerycznych typów danych i tensora PyTorch
+    # Convert `structure_features` to numeric data types and tensor PyTorch
     if hasattr(structure_features, 'values'):
-        structure_features = structure_features.values  # Konwersja do ndarray jeśli to DataFrame
-    structure_features = structure_features.astype(np.float32)  # Upewnij się, że wartości są numeryczne
+        structure_features = structure_features.values  
+    structure_features = structure_features.astype(np.float32)  
 
     verbose_print(f"Initial shape of structure_features: {structure_features.shape}")
 
     with torch.no_grad():
-        # Usuń wszystkie nadmiarowe wymiary, aby uzyskać płaski tensor [250]
+        # Remove all redundant dimensions to get a flat tensor [250].
         input_features = torch.tensor(structure_features.squeeze(), dtype=torch.float32)
 
-        # Dodaj wymiary dla batcha i kanałów, aby wynikowy tensor miał kształt [1, 1, 250]
+        # Add dimensions for batch and channels so that the resulting tensor is [1, 1, 250].
         input_features = input_features.unsqueeze(0).unsqueeze(0)
         
-        # Potwierdzenie ostatecznego kształtu
+        # Confirmation of final form
         verbose_print(f"Final shape of input_features for model: {input_features.shape}")
 
-        # Przekazanie do modelu
+        # Transfer to the model
         prediction = model(input_features).item()
 
 

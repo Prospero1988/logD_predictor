@@ -11,7 +11,6 @@ modules = [
     ('scikit-learn', 'scikit-learn==1.3.2'),
     ('xgboost', 'xgboost==2.1.1'),
     ('PILLOW', 'pillow'),
-    ('pygame', 'pygame'),
     ('PyTorch', 'torch==2.5.1')
 ]
 
@@ -41,7 +40,6 @@ try:
     import sklearn
     import xgboost as xgb
     import PIL as pillow
-    import pygame as py
     import torch
 
     print("\nAll required modules are installed and successfully imported.\n")

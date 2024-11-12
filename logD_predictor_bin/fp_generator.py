@@ -27,7 +27,7 @@ def fp_generator(csv_path, quiet=False):
     Returns:
     - fp_directory (str): Path to the directory where generated fingerprint CSV files are stored.
     """
-    # Definiowanie funkcji kontrolującej drukowanie
+    # Defining the function that controls printing
     def verbose_print(*args, **kwargs):
         if not quiet:
             print(*args, **kwargs)
