@@ -11,7 +11,9 @@ All models were trained on datasets of **over 1200 real-world compounds** synthe
 
 **logD Predictor** combines scientific rigor with ease of use: the entire pipeline — from SMILES to logD — is operated via an intuitive GUI, requiring no coding skills from the user. Predictions are visualized, summarized, and exported with just a few clicks, making the tool suitable for both research and production settings in computational chemistry.
 
+---
 
+### 📖 Associated Research & Citation
 
 *For more detailed information, check the original research paper:**
 (placeholder for DOI and link after publication)
