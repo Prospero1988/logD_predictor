@@ -1,11 +1,17 @@
 
+<p align="center"><img src="logD_predictor_bin/img/LOGO.png" width="100"/></p>
+
 # logD Predictor
 
-**logD Predictor** is a graphical application for the prediction of the **CHI logD** parameter based on machine learning (ML) and deep learning models trained on **¹H and ¹³C NMR spectral representations**. Additionally, it supports predictions based on **RDKit-generated molecular fingerprints**.  
+**logD Predictor** is a graphical software platform designed for accurate prediction of the **CHI logD** (Chromatographic Hydrophobicity Index) of chemical compounds — a chromatographic surrogate that is **experimentally and statistically equivalent to traditional logD** for comparative and modeling purposes. It leverages machine learning (ML) and deep neural network (DNN) models trained on **¹H and ¹³C NMR spectral representations**, as well as on **RDKit-derived molecular fingerprints**.
 
-The tool is built entirely in **Python** and integrates a graphical user interface (GUI) for both installation and usage. It incorporates the core functionality of the [Demiurge](https://github.com/Prospero1988/Demiurge) pipeline, with additional layers for model selection, prediction, and result visualization. All models used in the application were trained on datasets containing over 1,200 compounds and underwent full hyperparameter optimization using [Optuna](https://optuna.org/).
+Unlike traditional cheminformatics tools, **logD Predictor integrates simulated NMR spectra** as compact, information-rich descriptors, providing a physicochemically grounded alternative to conventional fingerprint encodings. The software supports both **single-input** and **ensemble-based predictions**, offering flexibility for exploratory analysis and robust screening workflows.
 
-For more detailed information, check the original research paper:
+All models were trained on datasets of **over 1200 real-world compounds** synthesized in **medicinal chemistry and drug discovery pipelines**, ensuring high applicability to pharmaceutically relevant chemical space. Through extensive hyperparameter optimization using the [Optuna](https://optuna.org/) framework, the best models consistently achieved **RMSE < 0.6** and **R² > 0.7** across multiple pH conditions — outperforming many traditional QSPR approaches.
+
+**logD Predictor** combines scientific rigor with ease of use: the entire pipeline — from SMILES to logD — is operated via an intuitive GUI, requiring no coding skills from the user. Predictions are visualized, summarized, and exported with just a few clicks, making the tool suitable for both research and production settings in computational chemistry.
+
+*For more detailed information, check the original research paper:**
 (placeholder for DOI and link after publication)
 
 **If you use this software in your research, please cite our publication once available.**
@@ -28,11 +34,16 @@ For more detailed information, check the original research paper:
 ---
 
 ## 💡 Key Features
-- Spectral-based prediction using theoretical ¹H and ¹³C NMR vectors
+
+- Spectral-based prediction using theoretical **¹H and ¹³C NMR** vectors
 - Optional prediction from RDKit molecular fingerprints
-- GUI-based interaction with multiple input/output and configuration options
-- Multi-model ensemble predictions and averaging
-- Automatic chart generation and model performance logging
+- GUI-based interface for input, model selection, and result visualization
+- Multi-model ensemble predictions with averaging across ML/DNN models
+- Full support for Java-based NMR spectrum simulation via NMRshiftDB2
+- **Low prediction error (RMSE < 0.6) and high R² (> 0.7) correlation coefficients across models**
+- Models fully optimized via Optuna-based hyperparameter tuning
+- Automatic chart generation and result export with customizable verbosity
+- **Trained on compounds (more than 1200) synthesized in real-world drug discovery pipelines**
 
 ---
 
@@ -152,12 +163,12 @@ Mol02;CCN(CC)CCOC(=O)c1ccc(C#N)cc1
 
 ## 🖥 Examples of Working Program
 
-<p align="center"><img src="logD_predictor_bin/img/IMG/1H_summary_results_plot.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/13C_summary_results_plot.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/FP_summary_results_plot.png" width="600"/></p>
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_1.png" width="600"/></p>
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_2.png" width="600"/></p>
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_3.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/1H_summary_results_plot.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/13C_summary_results_plot.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/FP_summary_results_plot.png" width="600"/></p>
 
 ---
 
