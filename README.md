@@ -86,12 +86,7 @@ logD_predictor/
    conda env create -f conda_environment.yml
    conda activate predictor_logD
    ```
-2. Alternatively, generate this file from your current environment:
-   ```bash
-   conda env export --name predictor_logD > conda_environment.yml
-   ```
-
-3. Install Java SDK and copy the `joblib_models` folder as above.
+2. Install Java SDK and copy the `joblib_models` folder as above.
 
 ---
 
@@ -99,11 +94,17 @@ logD_predictor/
 
 - **With native Python**: Double-click `START.pyw`
 - **With Conda**:
+  Navigate with `cd` command to the directory where `START.pyw` file is located. For example:
+
+  ```bash
+  cd D:\Git\logD_predictor
+  ```
+  Make sure you're running the script from the root directory of the project.
+  Then activate conda environment and start LogD Predictor.
   ```bash
   conda activate predictor_logD
   python START.pyw
   ```
-Make sure you're running the script from the root directory of the project.
 
 ---
 
