@@ -8,7 +8,8 @@ The tool is built entirely in **Python** and integrates a graphical user interfa
 For more detailed information, check the original research paper:
 (placeholder for DOI and link after publication)
 
-If you use this software in your research, please cite our publication once available.
+**If you use this software in your research, please cite our publication once available.**
+
 ---
 
 ## 📑 Table of Contents
