@@ -147,20 +147,38 @@ Mol02;CCN(CC)CCOC(=O)c1ccc(C#N)cc1
 
 ## 🧪 Prediction Options (via GUI)
 
-- **Select Representation**: Proton (¹H), Carbon (¹³C), RDKit FP, or All Above
-- **Available Models**: Choose models for prediction. Using all enables ensemble averaging.
-- **Execution Options**:
-  - **Quiet mode**: suppress non-essential output
-  - **Debug mode**: save all temp files and logs
-  - **Show models**: display model details and metrics
-  - **Generate charts**: create plots from predictions
+After launching the graphical interface using `START.pyw`, the following configuration options are available:
+
+### 🧬 Select Representation
+Choose the input data representation used by the predictive models:
+- **Proton (¹H)** – use ¹H NMR spectra
+- **Carbon (¹³C)** – use ¹³C NMR spectra
+- **RDKit FP** – use molecular fingerprints generated from SMILES
+- **All Above** – run predictions across all available input types and average the results
+
+### 🧠 Available Models
+Specify which machine learning models to include in the prediction:
+- **SVR** – Support Vector Regression models
+- **XGBoost** – Gradient boosting tree models
+- **DNN** – Multilayer Perceptrons (MLPs)
+- **CNN** – Convolutional Neural Networks
+- Selecting multiple options enables ensemble prediction and result averaging.
+
+### ⚙️ Execution Options
+Fine-tune runtime behavior of the program:
+- **Quiet mode** – suppresses non-essential output messages (enabled by default)
+- **Debug mode** – saves all temporary files, including intermediate MOLs and spectrum predictions
+- **Show models** – prints detailed performance metrics (RMSE, MAE, R²) for each model after execution
+- **Generate charts** – creates visual summaries of predicted logD values with standard deviations
+
+Each option is accompanied by helpful tooltips in the GUI for ease of configuration. After selecting the CSV file and desired settings, simply click **Start Prediction** to begin the analysis.
 
 ---
 
 ## 🖼 Preview of the Interface
 
 <p align="center">
-  <img src="logD_predictor_bin/img/IMG/logD_predictor_GUI.png" width="600"/>
+  <img src="logD_predictor_bin/img/IMG/logD_predictor_GUI.png" width="400"/>
 </p>
 
 ---
@@ -170,9 +188,9 @@ Mol02;CCN(CC)CCOC(=O)c1ccc(C#N)cc1
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_1.png" width="600"/></p>
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_2.png" width="600"/></p>
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_3.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/1H_summary_results_plot.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/13C_summary_results_plot.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/FP_summary_results_plot.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/1H_summary_results_plot.png" width="800"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/13C_summary_results_plot.png" width="800"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/FP_summary_results_plot.png" width="800"/></p>
 
 ---
 
