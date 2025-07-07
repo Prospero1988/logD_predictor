@@ -3,8 +3,12 @@
 
 **logD Predictor** is a graphical application for the prediction of the **CHI logD** parameter based on machine learning (ML) and deep learning models trained on **¹H and ¹³C NMR spectral representations**. Additionally, it supports predictions based on **RDKit-generated molecular fingerprints**.  
 
-The tool is built entirely in **Python** and integrates a graphical user interface (GUI) for both installation and usage. It incorporates the core functionality of the [Demiurge](https://github.com/Prospero1988/Demiurge) pipeline, with additional layers for model selection, prediction, and result visualization. All models used in the application were trained on datasets containing over 1,200 compounds and underwent full hyperparameter optimization using **Optuna**.
+The tool is built entirely in **Python** and integrates a graphical user interface (GUI) for both installation and usage. It incorporates the core functionality of the [Demiurge](https://github.com/Prospero1988/Demiurge) pipeline, with additional layers for model selection, prediction, and result visualization. All models used in the application were trained on datasets containing over 1,200 compounds and underwent full hyperparameter optimization using [Optuna](https://optuna.org/).
 
+For more detailed information, check the original research paper:
+(placeholder for DOI and link after publication)
+
+If you use this software in your research, please cite our publication once available.
 ---
 
 ## 📑 Table of Contents
