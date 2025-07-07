@@ -5,6 +5,23 @@
 
 The tool is built entirely in **Python** and integrates a graphical user interface (GUI) for both installation and usage. It incorporates the core functionality of the [Demiurge](https://github.com/Prospero1988/Demiurge) pipeline, with additional layers for model selection, prediction, and result visualization. All models used in the application were trained on datasets containing over 1,200 compounds and underwent full hyperparameter optimization using **Optuna**.
 
+---
+
+## 📑 Table of Contents
+- [Key Features](#-key-features)
+- [Repository Structure](#-repository-structure)
+- [Installation](#️-installation)
+- [Running the Application](#-running-the-application)
+- [Input File Format](#-input-file-format)
+- [Prediction Options](#-prediction-options-via-gui)
+- [Preview of the Interface](#-preview-of-the-interface)
+- [Examples of Working Program](#-examples-of-working-program)
+- [Related Projects](#-related-projects)
+- [Troubleshooting](#-troubleshooting)
+- [License](#-license)
+
+---
+
 ## 💡 Key Features
 - Spectral-based prediction using theoretical ¹H and ¹³C NMR vectors
 - Optional prediction from RDKit molecular fingerprints
@@ -19,91 +36,112 @@ The tool is built entirely in **Python** and integrates a graphical user interfa
 ```
 logD_predictor/
 │
-├── logD_predictor_bin/           # Main execution directory
-│   ├── img/                      # Icons and GUI-related images
-│   ├── joblib_models/            # (To be copied manually after download from SourceForge)
-│   ├── predictor/                # Java-based predictor for ¹H and ¹³C NMR spectra
+├── logD_predictor_bin/           
+│   ├── img/                      
+│   ├── joblib_models/            # Manually added (download from SourceForge)
+│   ├── predictor/                # Java-based predictors for ¹H and ¹³C NMR spectra
 │   ├── *.py                      # Python backend scripts
 │
-├── Prediction_Results/          # Directory for output logs and charts
+├── Prediction_Results/          
 │
-├── INSTALL.pyw                  # GUI-based script for Python module installation
-├── START.pyw                    # GUI launcher for logD Predictor
-├── README.md                    # This file
-├── RUN_LOG_FILE.log             # Internal log file for debugging
+├── INSTALL.pyw                  # GUI-based installer
+├── START.pyw                    # GUI launcher
+├── README.md                    
+├── RUN_LOG_FILE.log             
+├── install_text.txt             
+├── install_modules.py           
+├── input_example.csv            
+├── conda_environment.yml        # Conda environment definition
 ```
 
 ---
 
 ## ⚙️ Installation
 
-### ✅ Option 1: Native Python (Recommended for Windows 11)
+### ✅ Option 1: Native Python (Windows 11)
 
-1. Double-click `INSTALL.pyw` – it will automatically install all required Python packages.
-2. Install **Java SDK** (tested on version 23); ensure `java` and `javac` are available in PATH.
-3. Download the model package:  
-   [joblib_models.rar](https://sourceforge.net/projects/logdpredictor/files/joblib_models.rar/download)  
-   - Unpack the archive and place the `joblib_models` folder inside `logD_predictor_bin/`.
-
-> ✅ Tested on Python 3.12 and Windows 11.
+1. Ensure that **Python ≥ 3.12** is installed on your system. You can download the latest version from [https://www.python.org](https://www.python.org).
+2. Double-click `INSTALL.pyw` – it will install all required Python packages using `pip`.
+3. Install **Java SDK** (tested on version 23). Ensure `java` and `javac` are accessible in your PATH.
+4. Download the model archive:  
+   [joblib_models.rar](https://sourceforge.net/projects/logd-predictor/files/joblib_models.rar/download)  
+   - Extract and place the folder `joblib_models/` into `logD_predictor_bin/`.
 
 ---
 
 ### ✅ Option 2: Conda Environment
 
-1. Create a new environment and install packages using the provided `install_text.txt`:
+1. Use the provided environment file to create your Conda environment:
    ```bash
-   conda create -n logd_env python=3.12
-   conda activate logd_env
-   pip install -r install_text.txt
+   conda env create -f conda_environment.yml
+   conda activate predictor_logD
    ```
-2. Install Java SDK (as above) and copy the `joblib_models` folder to the correct location.
+2. Alternatively, generate this file from your current environment:
+   ```bash
+   conda env export --name predictor_logD > conda_environment.yml
+   ```
+
+3. Install Java SDK and copy the `joblib_models` folder as above.
 
 ---
 
 ## 🚀 Running the Application
 
-- **Native Python**: Just double-click `START.pyw`
-- **Conda**: Open terminal, activate environment and run:
+- **With native Python**: Double-click `START.pyw`
+- **With Conda**:
   ```bash
+  conda activate predictor_logD
   python START.pyw
   ```
-
-This will launch the **GUI interface** of logD Predictor.
+Make sure you're running the script from the root directory of the project.
 
 ---
 
 ## 📄 Input File Format
 
-You can start by clicking **"Open Input File Example"** from the GUI to view the required input format.  
-Alternatively, use **"Select with Input Example"** to load a prepared test file.
+The input should be a `.csv` file containing SMILES strings. Use the GUI's **"Open Input File Example"** button to see the required format. Example:
 
-📌 Input must be a CSV file with valid **SMILES** strings and appropriate headers.  
-**Do not delete or alter the column headers.**
+```csv
+ID;SMILES
+Mol01;CC(=O)Oc1ccccc1C(=O)O
+Mol02;CCN(CC)CCOC(=O)c1ccc(C#N)cc1
+...
+```
+
+- Columns must be **semicolon-separated (`;`)**.
+- Headers must remain unchanged.
+- The first column is molecule ID; second column is the SMILES string.
 
 ---
 
 ## 🧪 Prediction Options (via GUI)
 
-### Select Representation
-Choose the type of input data to base your prediction on:
-- **Proton** (¹H NMR)
-- **Carbon** (¹³C NMR)
-- **RDKit FP** (fingerprints)
-- **All Above** (ensemble)
+- **Select Representation**: Proton (¹H), Carbon (¹³C), RDKit FP, or All Above
+- **Available Models**: Choose models for prediction. Using all enables ensemble averaging.
+- **Execution Options**:
+  - **Quiet mode**: suppress non-essential output
+  - **Debug mode**: save all temp files and logs
+  - **Show models**: display model details and metrics
+  - **Generate charts**: create plots from predictions
 
-### Available Models
-Select one or more models to use for prediction. If multiple are selected, predictions are averaged.
+---
 
-### Script Execution Options
-The following options are available:
-- **Quiet mode**: suppress detailed output (default: ON)
-- **Debug mode**: save temporary files and logs
-- **Show models**: display full model metrics (RMSE, MAE, etc.)
-- **Generate charts**: display prediction charts
+## 🖼 Preview of the Interface
 
-> 🖼 For a preview of the interface:  
-> `logD_predictor_bin/img/IMG/logD_predictor_GUI.png`
+<p align="center">
+  <img src="logD_predictor_bin/img/IMG/logD_predictor_GUI.png" width="600"/>
+</p>
+
+---
+
+## 🖥 Examples of Working Program
+
+<p align="center"><img src="logD_predictor_bin/img/IMG/1H_summary_results_plot.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/13C_summary_results_plot.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/FP_summary_results_plot.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_1.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_2.png" width="600"/></p>
+<p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_3.png" width="600"/></p>
 
 ---
 
@@ -114,7 +152,14 @@ The following options are available:
 
 ---
 
+## 🛠 Troubleshooting
+
+If you encounter any problems during installation or usage, feel free to contact the author.  
+I will gladly assist with any technical issues related to environment setup, execution, or interpretation of results.
+
+---
+
 ## 📜 License
 
 This project is released under the **MIT License**.  
-All scripts and models are provided **free of charge** for academic and non-commercial use.
+All scripts, models, and GUI tools are provided **free of charge** for academic and non-commercial use.
