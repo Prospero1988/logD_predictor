@@ -1,5 +1,5 @@
 
-<p align="center"><img src="logD_predictor_bin/img/LOGO.png"/></p>
+<p align="center"><img src="logD_predictor_bin/img/LOGO.png"/>, width="400px"</p>
 
 # logD Predictor
 
