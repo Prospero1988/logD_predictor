@@ -44,7 +44,7 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
             raise ValueError(f'{COLORS[1]}Error: Column "{col}" is not of type string. Check your model data: {model_table_path}{RESET}')
             return None
     
-    columns_to_round = ['RMSE', 'MAE', 'R2', 'PEARSON']
+    columns_to_round = ['RMSE', 'MAE', 'Q2', 'PEARSON']
     for col in columns_to_round:
         if pd.api.types.is_numeric_dtype(model_table_df[col]):
             model_table_df[col] = model_table_df[col].round(4)
@@ -106,8 +106,8 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
     all_properties = set()
     
     # Loading dataset containing columns 'MOLECULE_NAME' and 'FEATURES'
-    df = pd.DataFrame(dataset)
-    
+    df = dataset.copy()    
+
     # Iterating over each row in the dataset
     for index, structure in df.iterrows():
         molecule_name = str(structure[structure.index[0]])
@@ -196,7 +196,9 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
     print(f"Summary Average Results for All Molecules")
     if predictor in ['1H', '13C']:
         print(f"Predicted on {COLORS[2]}{predictor} NMR {RESET}ML Models")
-    if predictor == 'FP':
+    elif predictor == 'hybrid':
+        print(f"Predicted on {COLORS[2]}Hybrid 1H|13C{RESET} ML Models")
+    elif predictor == 'FP':
         print(f"Predicted on {COLORS[2]}RDKit Fingerprints{RESET} ML Models")
     print(f"{COLORS[2]}------------------------------------------\n{RESET}")
     print(summary_results.to_string(index=False))
@@ -240,7 +242,16 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
             # Rotate the X-axis labels, if necessary.
             ax.tick_params(axis='x', rotation=90)
 
-        fig.suptitle(f"Average logD values from {predictor} representation Predictor", fontweight='bold', fontsize=16)
+        if predictor == '1H':
+            predictor_title = '¹H'
+        elif predictor == '13C':
+            predictor_title = '¹³C'
+        elif predictor == 'hybrid':
+            predictor_title = '¹H and ¹³C'
+        else:
+            predictor_title = 'RDKit Fingerprints'
+
+        fig.suptitle(f"Average logD values from {predictor_title} representation Predictor", fontweight='bold', fontsize=16)
 
         plt.tight_layout(rect=[0, 0, 1, 0.95])
         # Save the chart

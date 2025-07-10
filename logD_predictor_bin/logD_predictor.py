@@ -20,8 +20,9 @@ from predictor import run_java_batch_processor
 from bucket import bucket
 from merger import merger
 from custom_header import custom_header
-from model_query_temp import query
+from model_query import query
 from fp_generator import fp_generator
+from concatenator import concatenate
 
 def strip_ansi_codes(s):
     ansi_escape = re.compile(r'''
@@ -96,9 +97,10 @@ def main():
     To obtain logD values, SMILES codes of compounds 
     are sufficient. You can choose between models 
     trained on data of 1H NMR spectra, 13C NMR spectra, 
-    or both. The 1H spectrum option is the fastest, 
+    or hybrid represntation (Best Model). The 1H spectrum option is the fastest, 
     while 13C spectra significantly lengthen the 
-    prediction process. Data after prediction is 
+    prediction process. Hybrid consume combned timne of 1H 
+    and 13C so it's the slowest one. Data after prediction is 
     displayed in the terminal and saved to *.CSV files.
     The input CSV file must contain at least two 
     columns of data with corresponding header names. 
@@ -133,8 +135,8 @@ def main():
             type=str,
             default='all',
             required=False,
-            choices=['1H', '13C', 'FP', 'all'],  # Restricting choices to valid ones
-            help="Select the type of predictive models: '1H', '13C', 'FP' or 'all'."
+            choices=['1H', '13C', 'FP', 'hybrid'],  # Restricting choices to valid ones
+            help="Select the type of predictive models: '1H', '13C', 'FP' or 'hybrid'."
         )
         
         parser.add_argument(
@@ -185,48 +187,94 @@ def main():
         verified_csv_path = verify_csv(args.csv_path, args.quiet)
         
         # Determine the predictors to use
-        predictors = [args.predictor] if args.predictor in ['1H', '13C', 'FP'] else ['1H', '13C', 'FP']
+        predictors = [args.predictor] if args.predictor in ['1H', '13C', 'FP'] else 'hybrid'
 
         temp_data = []  # List to keep track of temporary directories
         mol_directory = None  # Initialize mol_directory
+        predictor = args.predictor
 
-        for predictor in predictors:
+        if predictor in ['1H', '13C', 'FP']:
 
-            temp_dirs = []  # Temporary directories for this predictor
+            for predictor in predictors:
 
-            if predictor == 'FP':
-                # Step 2 - 4: Generate FingerPrint files
-                processed_dir = fp_generator(verified_csv_path, args.quiet)
-                temp_dirs.append(processed_dir)
-            else:
+                temp_dirs = []  # Temporary directories for this predictor
+
+                if predictor == 'FP':
+                    # Step 2 - 4: Generate FingerPrint files
+                    processed_dir = fp_generator(verified_csv_path, args.quiet)
+                    temp_dirs.append(processed_dir)
+                else:
+                    if mol_directory is None:
+                        # Step 2: Generate .mol files from SMILES strings
+                        mol_directory = generate_mol_files(verified_csv_path, args.quiet)
+                        temp_data.append(mol_directory)
+
+                    # Step 3: Predict NMR spectra and save results as .csv files
+                    csv_output_folder = run_java_batch_processor(mol_directory, predictor, args.quiet)
+                    temp_dirs.append(csv_output_folder)
+                
+                    # Step 4: Perform bucketing to generate pseudo NMR spectra
+                    processed_dir = bucket(csv_output_folder, predictor, args.quiet)
+                    temp_dirs.append(processed_dir)
+            
+                # Step 5: Merge spectra in CSV format into one matrix file
+                output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor, args.quiet)
+                temp_dirs.append(merged_dir)
+            
+                # Step 6: Create custom headers for the final dataset
+                dataset, final_dir = custom_header(output_path, verified_csv_path, predictor, args.quiet)
+                temp_dirs.append(final_dir)
+
+                # Collect all temporary directories
+                temp_data.extend(temp_dirs)
+        
+                # Step 7: Query ML models
+                show_models_table = args.models
+                query(dataset, predictor, show_models_table, args.quiet, args.chart, args.use_svr, args.use_xgb, args.use_dnn, args.use_cnn)
+
+        elif predictor == 'hybrid':
+            
+            datasets = []  # List to keep track of datasets for hybrid prediction
+
+            predictors = ['1H', '13C']  # Use both 1H and 13C predictors for hybrid
+            for sub_predictor in predictors:
+                temp_dirs = []  # Temporary directories for this predictor
+
                 if mol_directory is None:
                     # Step 2: Generate .mol files from SMILES strings
                     mol_directory = generate_mol_files(verified_csv_path, args.quiet)
                     temp_data.append(mol_directory)
 
                 # Step 3: Predict NMR spectra and save results as .csv files
-                csv_output_folder = run_java_batch_processor(mol_directory, predictor, args.quiet)
+                csv_output_folder = run_java_batch_processor(mol_directory, sub_predictor, args.quiet)
                 temp_dirs.append(csv_output_folder)
             
                 # Step 4: Perform bucketing to generate pseudo NMR spectra
-                processed_dir = bucket(csv_output_folder, predictor, args.quiet)
+                processed_dir = bucket(csv_output_folder, sub_predictor, args.quiet)
                 temp_dirs.append(processed_dir)
-        
-            # Step 5: Merge spectra in CSV format into one matrix file
-            output_path, merged_dir = merger(processed_dir, verified_csv_path, predictor, args.quiet)
-            temp_dirs.append(merged_dir)
-        
-            # Step 6: Create custom headers for the final dataset
-            dataset, final_dir = custom_header(output_path, verified_csv_path, predictor, args.quiet)
-            temp_dirs.append(final_dir)
 
-            # Collect all temporary directories
-            temp_data.extend(temp_dirs)
-    
-            # Step 7: Query ML models
-            show_models_table = args.models
-            query(dataset, predictor, show_models_table, args.quiet, args.chart, args.use_svr, args.use_xgb, args.use_dnn, args.use_cnn)
+                # Step 5: Merge spectra in CSV format into one matrix file
+                output_path, merged_dir = merger(processed_dir, verified_csv_path, sub_predictor, args.quiet)
+                temp_dirs.append(merged_dir)
             
+                # Step 6: Create custom headers for the final dataset
+                dataset, final_dir = custom_header(output_path, verified_csv_path, sub_predictor, args.quiet)
+                temp_dirs.append(final_dir)
+                datasets.append(dataset)  # Collect dataset for hybrid prediction
+
+                # Collect all temporary directories
+                temp_data.extend(temp_dirs)
+
+            # Step 7: Generate concatenated 1H|13C input files
+            dataset2, concat_dir = concatenate(datasets, args.quiet)
+            temp_data.append(concat_dir)
+
+            verbose_print(args, f'{predictor}')
+
+            # Step 8: Query ML models
+            show_models_table = args.models
+            query(dataset2, predictor, show_models_table, args.quiet, args.chart, args.use_svr, args.use_xgb, args.use_dnn, args.use_cnn)
+
         # Optional: Clean up temporary dirs and data unless the --debug flag is set
         if not args.debug:
             verbose_print(args, 

@@ -37,7 +37,7 @@ def merger(processed_dir, csv_path, predictor, quiet=False):
         merging_directory = os.path.join(os.getcwd(), processed_dir)
         if not os.path.exists(merging_directory):
             print(f"{COLORS[1]}{merging_directory} does not exist.{RESET}")
-            return
+            return None, None
 
         csv_files = [file for file in os.listdir(merging_directory)
                      if file.endswith(".csv")]
@@ -65,5 +65,6 @@ def merger(processed_dir, csv_path, predictor, quiet=False):
 
     except Exception as e:
         print(f"{COLORS[0]}An error occurred: {e}{RESET}")
+        return None, None
 
     return output_path, merged_dir

@@ -273,11 +273,11 @@ representation_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
 predictor_var = tk.StringVar(value="all")
 # Define options, aliases, and tooltips
 predictor_options = {
-    "1H": ("Proton (1H) NMR", "Use Proton (1H) NMR data for predictions."),
-    "13C": ("Carbon (13C) NMR", "Use Carbon (13C) NMR data for predictions."),
+    "hybrid": ("Hybrid ¹H | ¹³C", "Use hybrid representation combining ¹H and ¹³C NMR data."),
+    "1H": ("Proton (¹H) NMR", "Use Proton (¹H) NMR data for predictions."),
+    "13C": ("Carbon (¹³C) NMR", "Use Carbon (¹³C) NMR data for predictions."),
     "FP": ("RDKit Fingerprints", "Use RDKit Fingerprints for predictions."),
-    "all": ("All Above", "Use all available predictors.")
-}
+    }
 
 # Create radio buttons with aliases and tooltips
 for value, (alias, tooltip_text) in predictor_options.items():
