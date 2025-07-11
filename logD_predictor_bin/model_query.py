@@ -25,6 +25,10 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
              ]
     RESET = '\033[0m'
     
+    print("")
+    print("Prediction in progress. If you need more details during prediction, please turn off QUIET option.")
+    print("")
+
     model_table_file = f"{predictor}_models_info.csv"
     model_table_path = os.path.join(os.getcwd(), "logD_predictor_bin", "joblib_models", model_table_file)
     
