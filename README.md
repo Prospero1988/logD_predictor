@@ -3,7 +3,7 @@
 
 # logD Predictor
 
-**logD Predictor** is a graphical software platform designed for accurate prediction of the **CHI logD** (Chromatographic Hydrophobicity Index) of chemical compounds — a chromatographic surrogate that is **experimentally and statistically equivalent to traditional logD** for comparative and modeling purposes. It leverages machine learning (ML) and deep neural network (DNN) models trained on **¹H and ¹³C NMR spectral representations**, as well as on **RDKit-derived molecular fingerprints**.
+**logD Predictor** is a graphical software platform designed for accurate prediction of the **CHI logD** (Chromatographic Hydrophobicity Index) of chemical compounds — a chromatographic surrogate that is **experimentally and statistically equivalent to traditional logD** for comparative and modeling purposes. It leverages machine learning (ML) and deep neural network (DNN) models trained on **¹H and ¹³C NMR spectral representations**, as well as on **RDKit-derived molecular fingerprints**. LogD simulations can be carried out using individual ¹H and ¹³C spectra, or via a hybrid approach (¹H | ¹³C) that fuses these spectra into a single vector representation for prediction — **the hybrid method consistently delivers the best results**.
 
 Unlike traditional cheminformatics tools, **logD Predictor integrates simulated NMR spectra** as compact, information-rich descriptors, providing a physicochemically grounded alternative to conventional fingerprint encodings. The software supports both **single-input** and **ensemble-based predictions**, offering flexibility for exploratory analysis and robust screening workflows.
 
@@ -39,7 +39,7 @@ All models were trained on datasets of **over 1200 real-world compounds** synthe
 
 ## 💡 Key Features
 
-- Spectral-based prediction using theoretical **¹H and ¹³C NMR** vectors
+- Spectral-based prediction using theoretical **¹H and ¹³C NMR** vectors or their **fused variant**
 - Optional prediction from RDKit molecular fingerprints
 - GUI-based interface for input, model selection, and result visualization
 - Multi-model ensemble predictions with averaging across ML/DNN models
@@ -60,11 +60,12 @@ logD_predictor/
 │   ├── bucket.py                       # Buckets NMR spectra into predefined ranges
 │   ├── csv_checker.py                  # Verifies input CSV structure, format, separators, decimal markers
 │   ├── custom_header.py                # Adds consistent headers for bucketed NMR spectra
+│   ├── concatenator.py                 # Concatenate the vectors from the 1H and 13C single-modal representations into a single fused bimodal vector.
 │   ├── fp_generator.py                 # Generates RDKit molecular fingerprints (e.g. ECFP4)
 │   ├── gen_mols.py                     # Converts SMILES strings to .mol files for NMR prediction
 │   ├── logD_predictor.py               # Main GUI logic handler; manages file I/O and prediction logic
 │   ├── merger.py                       # Merges bucketed ¹H and ¹³C spectra into combined matrix
-│   ├── model_query_temp.py             # Legacy test script for querying models (not directly used)
+│   ├── model_query.py                  # Prediction engine to querry saved models and get logD values
 │   ├── predictor.py                    # Launches Java-based NMR spectrum prediction (via CDK .jar)
 │   ├── CNN_predict.py                  # Predicts using CNN-based neural networks
 │   ├── DNN_predict.py                  # Predicts using MLP-based deep networks
@@ -151,10 +152,10 @@ After launching the graphical interface using `START.pyw`, the following configu
 
 ### 🧬 Select Representation
 Choose the input data representation used by the predictive models:
-- **Proton (¹H)** – use ¹H NMR spectra
-- **Carbon (¹³C)** – use ¹³C NMR spectra
-- **RDKit FP** – use molecular fingerprints generated from SMILES
-- **All Above** – run predictions across all available input types and average the results
+- **Hybrid ¹H|¹³C** - use hybrid bispectral representation for the best prediction results, but it's the slowest method.
+- **Proton (¹H)** – use ¹H NMR spectra. Fast, but less acurate.
+- **Carbon (¹³C)** – use ¹³C NMR spectra. Slower, more acurate.
+- **RDKit FP** – use molecular fingerprints generated from SMILES, benchmarkt for testing and comparision.
 
 ### 🧠 Available Models
 Specify which machine learning models to include in the prediction:
@@ -186,12 +187,7 @@ Each option is accompanied by helpful tooltips in the GUI for ease of configurat
 ## 🖥 Examples of Working Program
 
 <p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_1.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_2.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/logD_predictor_console_3.png" width="600"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/1H_summary_results_plot.png" width="800"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/13C_summary_results_plot.png" width="800"/></p>
-<p align="center"><img src="logD_predictor_bin/img/IMG/FP_summary_results_plot.png" width="800"/></p>
-
+<p align="center"><img src="logD_predictor_bin/img/IMG/1H13C_summary_results_plot.png" width="800"/></p>
 ---
 
 ## 🔗 Related Projects
