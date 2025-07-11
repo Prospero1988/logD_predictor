@@ -174,13 +174,17 @@ def main():
         # Clear the console and display the ASCII art logo
         subprocess.call('cls' if os.name == 'nt' else 'clear', shell=True)
         
+        print_pred = args.predictor if args.predictor in ['1H', '13C'] else "1H | 13C" if args.predictor == 'hybrid' else "FingerPrints"
+
         print('')
         ascii_art_predictor = text2art("PREDICTOR")
         second_line = "logD"
         ascii_art_2nd_line = text2art(second_line)
+        ascii_art_3rd_line = text2art(print_pred)
         art_width = len(ascii_art_predictor.split('\n')[0])
-        centered_2nd_line_lines = [line.center(art_width) for line in ascii_art_2nd_line.split('\n')]
-        final_art = f"{ascii_art_predictor}\n" + "\n".join(centered_2nd_line_lines)
+        centered_2nd_line = "\n".join(line.center(art_width) for line in ascii_art_2nd_line.split('\n'))
+        centered_3rd_line = "\n".join(line.center(art_width) for line in ascii_art_3rd_line.split('\n'))
+        final_art = f"{ascii_art_predictor}\n{centered_2nd_line}\n{centered_3rd_line}"
         print(final_art)                   
 
         # Step 1: Verify the CSV input file and correct any issues
