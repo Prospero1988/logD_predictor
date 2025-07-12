@@ -53,4 +53,5 @@ def concatenate(datasets, quiet=False):
     combined.to_csv(output_path, index=False)
 
     verbose_print(f"Hybrid dataset saved to: {output_path}")
+    verbose_print("\n✅ Combined shape after hybrid concat:", combined.shape, "\n")
     return combined, str(concat_dir)

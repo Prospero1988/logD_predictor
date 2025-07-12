@@ -117,6 +117,9 @@ def query(dataset, predictor, show_models_table=False, quiet=False, chart=False,
         molecule_name = str(structure[structure.index[0]])
         structure_features = structure.iloc[1:].to_frame().T
 
+        verbose_print(f"\n🧪 structure_features.shape: {structure_features.shape}")
+        verbose_print(f"🧪 structure_features.columns[:5]: {structure_features.columns[:5]}\n")
+
         # Initialize a dictionary to store results for this molecule
         molecule_data = {'MOLECULE_NAME': molecule_name}
 
