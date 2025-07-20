@@ -273,7 +273,7 @@ representation_frame.grid(row=8, column=0, columnspan=2, padx=10, sticky="w")
 predictor_var = tk.StringVar(value="all")
 # Define options, aliases, and tooltips
 predictor_options = {
-    "hybrid": ("Hybrid ¹H | ¹³C", "Use hybrid representation combining ¹H and ¹³C NMR data."),
+    "hybrid": ("Fused ¹H | ¹³C", "Use fused-concatenated representation combining ¹H and ¹³C NMR data."),
     "1H": ("Proton (¹H) NMR", "Use Proton (¹H) NMR data for predictions."),
     "13C": ("Carbon (¹³C) NMR", "Use Carbon (¹³C) NMR data for predictions."),
     "FP": ("RDKit Fingerprints", "Use RDKit Fingerprints for predictions."),
