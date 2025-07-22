@@ -93,8 +93,9 @@ logD_predictor/
 
 1. Ensure that **Python ≥ 3.12** is installed on your system. You can download the latest version from [https://www.python.org](https://www.python.org).
 2. Double-click `INSTALL.pyw` – it will install all required Python packages using `pip`.
-3. Install **Java SDK** (tested on version 23). Ensure `java` and `javac` are accessible in your PATH.
-4. Download the model archive:  
+3. Download & Install **Java SDK** (tested on version 23). Ensure `java` and `javac` are accessible in your PATH.
+4. Download, Install and add to PATH **Open Babel**.
+5. Download the model archive:  
    [joblib_models.rar](https://sourceforge.net/projects/logd-predictor/files/joblib_models.rar/download)  
    - Extract and place the folder `joblib_models/` into `logD_predictor_bin/`.
 
@@ -107,8 +108,10 @@ logD_predictor/
    conda env create -f conda_environment.yml
    conda activate predictor_logD
    ```
-2. Install Java SDK and copy the `joblib_models` folder as above.
-
+2. Download & Install **Java SDK** (tested on version 23). Ensure `java` and `javac` are accessible in your PATH.
+3. Download the model archive:  
+   [joblib_models.rar](https://sourceforge.net/projects/logd-predictor/files/joblib_models.rar/download)  
+   - Extract and place the folder `joblib_models/` into `logD_predictor_bin/`.
 ---
 
 ## 🚀 Running the Application
