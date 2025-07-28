@@ -7,7 +7,7 @@
 
 Unlike traditional cheminformatics tools, **logD Predictor integrates simulated NMR spectra** as compact, information-rich descriptors, providing a physicochemically grounded alternative to conventional fingerprint encodings. The software supports both **single-input** and **ensemble-based predictions**, offering flexibility for exploratory analysis and robust screening workflows.
 
-All models were trained on datasets of **over 1200 real-world compounds** synthesized in **medicinal chemistry and drug discovery pipelines**, ensuring high applicability to pharmaceutically relevant chemical space. Through extensive hyperparameter optimization using the [Optuna](https://optuna.org/) framework, the best models consistently achieved **RMSE < 0.6** and **R² > 0.7** across multiple pH conditions — outperforming many traditional QSPR approaches.
+All models were trained on datasets of **over 1200 real-world compounds** synthesized in **medicinal chemistry and drug discovery pipelines**, ensuring high applicability to pharmaceutically relevant chemical space. Through extensive hyperparameter optimization using the [Optuna](https://optuna.org/) framework, the best models consistently achieved **RMSE < 0.6** and **Q² > 0.7** across multiple pH conditions — outperforming many traditional QSPR approaches.
 
 **logD Predictor** combines scientific rigor with ease of use: the entire pipeline — from SMILES to logD — is operated via an intuitive GUI, requiring no coding skills from the user. Predictions are visualized, summarized, and exported with just a few clicks, making the tool suitable for both research and production settings in computational chemistry.
 
