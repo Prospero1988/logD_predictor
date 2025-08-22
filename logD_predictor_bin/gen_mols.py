@@ -65,23 +65,33 @@ def safe_embed_molecule(
     Returns
     -------
     mol
-        RDKit molecule with at least one conformer, or ``None`` on hard fail.
+        RDKit molecule with at least one conformer, or None on hard fail.
     warning
-        ``None`` on ETKDG success, otherwise a human-readable note.
+        None on ETKDG success, otherwise a human-readable note.
     """
-    params = AllChem.ETKDGv3()
+    # Pick the newest ETKDG params available
+    try:
+        params = AllChem.ETKDGv3()
+    except AttributeError:
+        try:
+            params = AllChem.ETKDGv2()
+        except AttributeError:
+            params = AllChem.ETKDG()
+
+    # Set only attributes guaranteed to exist across versions
     params.randomSeed = seed
-    params.maxAttempts = 100
+    # DO NOT set params.maxAttempts – not present in some RDKit builds
 
     for _ in range(max_retries):
         mol.RemoveAllConformers()
         if AllChem.EmbedMolecule(mol, params) == 0:
             return mol, None  # ETKDG success
 
+    # Fallback to 2D coords if 3D embedding failed
     try:
-        rdCoordGen.AddCoords(mol)  # 2 D fallback
+        rdCoordGen.AddCoords(mol)  # 2D fallback
         return mol, f"ETKDG failed ({max_retries}x) → used CoordGen"
-    except Exception as exc:  # pylint: disable=broad-except
+    except Exception as exc:
         return None, f"ETKDG + CoordGen failed: {exc}"
 
 
